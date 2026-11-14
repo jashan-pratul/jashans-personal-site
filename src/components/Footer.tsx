@@ -1,7 +1,6 @@
-import { ArrowUp, Command } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { EDUCATION, PROFILE } from "../data/profile";
-import { emit } from "../lib/bus";
-import { modKey, scrollToSection } from "../lib/utils";
+import { scrollToSection } from "../lib/utils";
 import { GitHubIcon, LinkedInIcon, XIcon } from "./ui/BrandIcons";
 
 export function Footer() {
@@ -22,13 +21,6 @@ export function Footer() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => emit("palette:open")}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-[#120b20] px-3 py-2 font-mono text-xs text-[#F5F0FA] hover:border-[#FF79C6]"
-            >
-              <Command className="size-3.5 text-[#FF79C6]" /> Quick Jump ({modKey}K)
-            </button>
             <button
               type="button"
               onClick={() => scrollToSection("home")}

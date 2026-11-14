@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Command, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { PROFILE } from "../data/profile";
-import { emit, useBus } from "../lib/bus";
-import { modKey, scrollToSection } from "../lib/utils";
+import { useBus } from "../lib/bus";
+import { scrollToSection } from "../lib/utils";
 
 export const NAV_ITEMS = [
   { id: "home", label: "Home" },
@@ -179,7 +179,7 @@ export function Navbar() {
         Skip to main content
       </a>
 
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
         {/* Brand */}
         <a
           href="#home"
@@ -197,14 +197,17 @@ export function Navbar() {
             <span className="font-display text-sm font-semibold tracking-tight text-[#F5F0FA] transition-colors group-hover:text-[#FF79C6]">
               {PROFILE.name}
             </span>
-            <span className="hidden font-mono text-[11px] text-[#b6a8c9] lg:block">
+            <span className="hidden font-mono text-[11px] text-[#b6a8c9] sm:block">
               BE CSE · KCT Coimbatore
             </span>
           </div>
         </a>
 
-        {/* Desktop Navigation */}
-        <nav aria-label="Primary navigation" className="hidden items-center gap-1 md:flex">
+        {/* Desktop Navigation — Minimal, Balanced Pill Capsule */}
+        <nav
+          aria-label="Primary navigation"
+          className="hidden items-center gap-1 rounded-full border border-white/[0.08] bg-[#110a1f]/75 p-1 md:flex"
+        >
           {NAV_ITEMS.map((item) => {
             const isActive = activeSection === item.id;
             return (
@@ -216,7 +219,7 @@ export function Navbar() {
                   e.preventDefault();
                   handleNav(item.id);
                 }}
-                className={`relative rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                className={`relative rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                   isActive ? "text-[#F5F0FA]" : "text-[#b6a8c9] hover:text-[#F5F0FA]"
                 }`}
               >
@@ -233,31 +236,16 @@ export function Navbar() {
           })}
         </nav>
 
-        {/* Quick Jump & Mobile Menu */}
-        <div className="flex shrink-0 items-center gap-2">
-          <button
-            type="button"
-            onClick={() => emit("palette:open")}
-            className="inline-flex items-center gap-2 whitespace-nowrap rounded-lg border border-white/12 bg-[#120b20]/90 px-3 py-1.5 font-mono text-xs text-[#F5F0FA] transition-colors hover:border-[#FF79C6]/60"
-            aria-label="Open quick navigation palette"
-          >
-            <Command className="size-3.5 shrink-0 text-[#FF79C6]" />
-            <span className="hidden sm:inline">Quick Jump</span>
-            <kbd className="rounded border border-white/15 bg-black/30 px-1.5 py-0.5 font-mono text-[10px] text-[#36D9E8]">
-              {modKey}K
-            </kbd>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setMobileOpen((v) => !v)}
-            className="inline-flex size-9 items-center justify-center rounded-lg border border-white/15 bg-[#120b20] text-[#F5F0FA] md:hidden"
-            aria-expanded={mobileOpen}
-            aria-label="Toggle navigation menu"
-          >
-            {mobileOpen ? <X className="size-4" /> : <Menu className="size-4" />}
-          </button>
-        </div>
+        {/* Mobile Menu Button (Hidden on Desktop so no empty space remains) */}
+        <button
+          type="button"
+          onClick={() => setMobileOpen((v) => !v)}
+          className="inline-flex size-9 items-center justify-center rounded-lg border border-white/15 bg-[#120b20] text-[#F5F0FA] md:hidden"
+          aria-expanded={mobileOpen}
+          aria-label="Toggle navigation menu"
+        >
+          {mobileOpen ? <X className="size-4" /> : <Menu className="size-4" />}
+        </button>
       </div>
 
       {/* Mobile Navigation Menu */}

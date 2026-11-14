@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Command, FileText, Mail, MapPin } from "lucide-react";
+import { FileText, Mail, MapPin } from "lucide-react";
 import { usePersona } from "../../context/persona";
 import { PROFILE } from "../../data/profile";
 import { emit } from "../../lib/bus";
-import { copyText, modKey } from "../../lib/utils";
+import { copyText } from "../../lib/utils";
 import { GitHubIcon, LinkedInIcon, XIcon } from "../ui/BrandIcons";
 
 const swap = {
@@ -80,13 +80,6 @@ export function HeroCard() {
       </AnimatePresence>
 
       <div className="mt-auto flex flex-wrap gap-2 pt-7">
-        <button
-          onClick={() => emit("palette:open")}
-          className="group inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 text-sm font-medium text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <Command className="size-4" /> Command Palette
-          <kbd className="rounded border border-black/15 px-1.5 font-mono text-[10px] text-black/60">{modKey} K</kbd>
-        </button>
         {persona === "recruiter" && (
           <button
             onClick={() => emit("resume:open")}

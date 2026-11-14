@@ -1,10 +1,9 @@
 import { motion } from "framer-motion";
-import { Briefcase, Command, Cpu, Rocket } from "lucide-react";
+import { Briefcase, Cpu, Rocket } from "lucide-react";
 import { useEffect } from "react";
 import { usePersona } from "../context/persona";
 import { PERSONAS, PERSONAS_ORDER, PROFILE, type Persona } from "../data/profile";
-import { emit } from "../lib/bus";
-import { isTypingTarget, modKey } from "../lib/utils";
+import { isTypingTarget } from "../lib/utils";
 
 export const PERSONA_ICON: Record<Persona, typeof Briefcase> = {
   recruiter: Briefcase,
@@ -74,16 +73,6 @@ export function Header() {
             })}
           </div>
         </nav>
-
-        <button
-          onClick={() => emit("palette:open")}
-          className="flex items-center gap-2 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs text-muted transition-colors hover:border-line-strong hover:text-ink"
-          aria-label="Open command palette"
-        >
-          <Command className="size-3.5" />
-          <span className="hidden sm:inline">Search</span>
-          <kbd className="kbd hidden sm:inline">{modKey} K</kbd>
-        </button>
       </div>
     </header>
   );
