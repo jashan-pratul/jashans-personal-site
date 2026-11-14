@@ -22,8 +22,9 @@ export const PROFILE = {
   summary:
     "I started my undergraduate degree in Computer Science Engineering in September 2025. Outside of coursework, I spend my time building web applications, developer tools, AI prototypes, and machine learning notebooks to understand how software works in practice.",
   status: "BE Computer Science Engineering (2025–2029)",
+  portraitUrl: "/images/jashan-portrait.jpg",
+  portraitOriginalUrl: "/images/Stylized Monochrome Portrait with Orange Accents (2).png",
   codeforcesHandle: "jashan-pratul",
-  linkedinReachNote: "150K+ LinkedIn post impressions (historical self-reported figure from résumé, not a live feed)",
   links: {
     github: "https://github.com/jashan-pratul",
     linkedin: "https://www.linkedin.com/in/jashan-pratul-9bb8a12b1/",
@@ -45,33 +46,38 @@ export const EDUCATION = {
 
 export const INTERESTS = [
   {
-    title: "Software & Web Development",
-    description:
-      "Building full-stack web applications with TypeScript, React, Next.js, Node.js, and Python backends.",
+    index: "01",
+    title: "Web development",
+    description: "Building web apps with TypeScript, React, Next.js, Node.js and Python backends.",
   },
   {
-    title: "Artificial Intelligence & ML",
-    description:
-      "Working with structured LLM outputs (Google Gemini API + Zod) and foundational machine learning workflows in Python.",
+    index: "02",
+    title: "AI and machine learning",
+    description: "Using the Gemini API with structured outputs, and learning machine learning basics in Python.",
   },
   {
-    title: "Developer Tools",
-    description:
-      "Creating practical utilities like local-first browser extensions and incident log analyzers that make debugging clearer.",
+    index: "03",
+    title: "Developer tools",
+    description: "Making small tools that make debugging clearer, like a local-first browser extension and a log analyzer.",
   },
   {
-    title: "Product Building & Entrepreneurship",
-    description:
-      "Taking small, concrete problems from an initial idea to a deployed MVP and iterating based on what works.",
+    index: "04",
+    title: "Building products",
+    description: "Taking small, concrete problems from an idea to a deployed prototype, then improving it.",
   },
 ] as const;
 
 export interface VerifiedProject {
   id: string;
+  index: string;
   name: string;
   tagline: string;
   category: "AI Application" | "Developer Tool" | "Full-Stack & IoT" | "Machine Learning";
   accent: string;
+  previewImage: string;
+  xrayTitle: string;
+  xraySourcePath: string;
+  xrayCodeExcerpt: string;
   flow: readonly [string, string, string, string];
   whatItDoes: string;
   whyBuilt: string;
@@ -90,10 +96,27 @@ export interface VerifiedProject {
 export const VERIFIED_PROJECTS: VerifiedProject[] = [
   {
     id: "repropack",
+    index: "01",
     name: "ReproPack",
-    tagline: "Local-first Chrome extension for recording, filtering, redacting, and exporting diagnostic events",
+    tagline: "Chrome extension for recording, filtering and exporting debugging events, with sensitive data redacted locally",
     category: "Developer Tool",
-    accent: "#36D9E8",
+    accent: "#FF5500",
+    previewImage: "/images/projects/repropack-preview.svg",
+    xrayTitle: "Redaction and the event buffer",
+    xraySourcePath: "public/manifest.json · src/background/service-worker.ts",
+    xrayCodeExcerpt: `// public/manifest.json (ReproPack v0.3.0)
+{
+  "manifest_version": 3,
+  "name": "ReproPack",
+  "version": "0.3.0",
+  "description": "100% local-first, zero-cloud Manifest V3 bug reproduction and telemetry recorder",
+  "action": { "default_popup": "popup.html" },
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "permissions": ["storage"]
+}`,
     flow: [
       "Event Dispatched to Extension",
       "Bounded Ring Buffer (1,000 max)",
@@ -101,14 +124,14 @@ export const VERIFIED_PROJECTS: VerifiedProject[] = [
       "Inspector & JSON Blob Export",
     ],
     whatItDoes:
-      "A Manifest V3 Chrome extension (v0.3.0) and companion documentation site that records developer diagnostic events in a bounded local session buffer, applies heuristic token/PII masking, and exports structured JSON for bug reproduction.",
+      "A Manifest V3 Chrome extension (v0.3.0) with a companion website. It keeps recent debugging events in a bounded local buffer, masks tokens and personal data, and exports the session as JSON for bug reports.",
     whyBuilt:
-      "When reproducing frontend bugs, developers often have to manually copy console errors and payloads from DevTools and strip out tokens by hand before sharing a bug report.",
+      "Reproducing a frontend bug usually means copying console errors and payloads out of DevTools and stripping tokens by hand before sharing them. This tool turns that into a single step.",
     whatIImplemented: [
       "Built the Manifest V3 background service worker and popup/full-tab inspector in TypeScript and Vite, requesting only the Chrome `storage` permission.",
       "Implemented a bounded in-memory ring buffer (up to 1,000 events with FIFO eviction and 24-hour expiration) checkpointed to `chrome.storage.session`.",
       "Added regex-based client-side scrubbing for common sensitive patterns (Bearer tokens, JWTs, API keys, emails, and query parameters like `token` or `password`).",
-      "Built severity filtering (`Error`, `Warn`, `Info`, `Debug`), text search, payload inspection, client-side JSON Blob export, and a Vitest unit test suite, plus the companion web playground (`repropack.vercel.app`).",
+      "Built severity filtering (`Error`, `Warn`, `Info`, `Debug`), text search, payload inspection, client-side JSON Blob export, and a 194-test Vitest unit test suite, plus the companion web playground (`repropack.vercel.app`).",
     ],
     technologies: [
       "TypeScript",
@@ -133,10 +156,37 @@ export const VERIFIED_PROJECTS: VerifiedProject[] = [
   },
   {
     id: "adapted",
+    index: "02",
     name: "AdaptEd",
-    tagline: "Error-aware adaptive learning prototype using structured Gemini outputs and reassessment rounds",
+    tagline: "A learning prototype that works out why a student got an answer wrong, then re-explains and re-checks",
     category: "AI Application",
-    accent: "#E84CA8",
+    accent: "#38BDF8",
+    previewImage: "/images/projects/adapted-preview.svg",
+    xrayTitle: "Response schema and reassessment rounds",
+    xraySourcePath: "lib/schema.ts · app/api/analyze/route.ts",
+    xrayCodeExcerpt: `// lib/schema.ts (AdaptEd-MVP)
+export const analysisSchema = z.object({
+  difficultyType: z.enum([
+    'Vocabulary difficulty',
+    'Conceptual misunderstanding',
+    'Sequential/process difficulty',
+    'Information overload',
+    'Persistent misconception'
+  ]),
+  confidence: z.number().min(0).max(100),
+  diagnosis: z.string(),
+  evidence: z.array(z.string()).min(1).max(3),
+  strategy: z.string(),
+  representation: z.enum([
+    'Simplified Text',
+    'Visual / Structured Explanation',
+    'Example / Analogy-Based Explanation'
+  ]),
+  adaptedExplanation: z.string(),
+  nextQuestion: z.string(),
+  whyItChanged: z.string(),
+  masteryStatus: z.enum(['mastered', 'continue', 'needs_support'])
+});`,
     flow: [
       "Concept, Question & Answer",
       "Zod Validation (/api/analyze)",
@@ -144,9 +194,9 @@ export const VERIFIED_PROJECTS: VerifiedProject[] = [
       "Adapted Explanation + Reassessment",
     ],
     whatItDoes:
-      "An adaptive learning web application that inspects a learner's answer to a concept question, identifies the likely type of mistake, generates a tailored explanation in a different representation, and creates a follow-up question to reassess understanding.",
+      "A web app where a learner answers a question about a concept. It identifies the likely kind of mistake, explains the idea in a different way, and asks a follow-up question to check understanding.",
     whyBuilt:
-      "Standard practice tools often just mark an answer wrong or lower the difficulty without addressing why the student made that mistake (for example, adding numerators and denominators directly in `1/2 + 1/4 = 2/6`).",
+      "Practice tools often mark an answer wrong, or just make the next question easier, without addressing why the mistake happened. For example, adding the tops and bottoms of fractions: 1/2 + 1/4 = 2/6.",
     whatIImplemented: [
       "Built a Next.js App Router application (`app/page.tsx` and `app/api/analyze/route.ts`) using TypeScript and Tailwind CSS.",
       "Defined strict Zod schemas (`lib/schema.ts`) to validate incoming requests and enforce structured model outputs (`difficultyType`, `confidence`, `diagnosis`, `evidence`, `strategy`, `representation`, `adaptedExplanation`, `nextQuestion`, `masteryStatus`).",
@@ -175,10 +225,40 @@ export const VERIFIED_PROJECTS: VerifiedProject[] = [
   },
   {
     id: "rootcause-ai",
+    index: "03",
     name: "Root Cause AI",
-    tagline: "AI-assisted incident log and service dependency analyzer",
+    tagline: "Incident log and service dependency analyzer",
     category: "AI Application",
-    accent: "#FFAD57",
+    accent: "#FF5500",
+    previewImage: "/images/projects/rootcause-preview.svg",
+    xrayTitle: "Ranking logic and dependency walk",
+    xraySourcePath: "main.py · graph.py · api.py",
+    xrayCodeExcerpt: `# main.py (RootCause AI — Deterministic Baseline)
+ordered_logs = sorted(logs, key=timestamp_key)
+counts = Counter(log["service"] for log in ordered_logs)
+
+candidates = sorted(
+    ordered_logs,
+    key=lambda log: (
+        str(log["severity"]).upper() == "CRITICAL",
+        counts[log["service"]],
+        -timestamp_key(log) if timestamp_key(log) != float("inf") else float("-inf"),
+    ),
+    reverse=True,
+)
+root_service = candidates[0]["service"]
+
+# Walk dependency graph in reverse (dependent -> required)
+downstream = set()
+changed = True
+while changed:
+    changed = False
+    for service, required_services in dependencies.items():
+        if service not in downstream and any(
+            req == root_service or req in downstream for req in required_services
+        ):
+            downstream.add(service)
+            changed = True`,
     flow: [
       "JSON Logs + Dependency Map",
       "FastAPI Deterministic Ranking",
@@ -186,13 +266,13 @@ export const VERIFIED_PROJECTS: VerifiedProject[] = [
       "Optional Gemini Hypothesis",
     ],
     whatItDoes:
-      "A debugging web application that analyzes structured application error logs alongside a service dependency map to highlight a candidate root-cause service, trace downstream impacted services, and suggest diagnostic checks.",
+      "A debugging dashboard. Given error logs and a map of which services depend on which, it highlights the most likely root-cause service, lists the services that could be affected downstream, and suggests checks to run.",
     whyBuilt:
-      "Built to explore how deterministic graph and log rules can be paired with LLM-generated hypotheses during incident investigation without treating AI output as ground truth.",
+      "Built to explore how simple, predictable rules over logs and a dependency graph can sit alongside an AI-generated hypothesis, without treating the AI output as the truth.",
     whatIImplemented: [
       "Built a Python FastAPI backend (`api.py`, `main.py`, `graph.py`, `pdf_report.py`) and a Next.js frontend dashboard.",
       "Implemented a deterministic baseline that validates ISO-8601 log entries (`CRITICAL`, `ERROR`, `WARNING`, `INFO`), ranks candidate services by severity, frequency, and earliest timestamp, and walks the dependency graph in reverse to list potentially impacted downstream services.",
-      "Added an optional server-side Google Gemini step that generates a labeled hypothesis and diagnostic checklist, while returning `ai_status: 'unavailable'` if Gemini is unconfigured so the deterministic analysis still succeeds.",
+      "Added an optional server-side Google Gemini (`gemini-3.1-flash-lite`) step that generates a labeled hypothesis and diagnostic checklist, while returning `ai_status: 'unavailable'` if Gemini is unconfigured so the deterministic analysis still succeeds.",
       "Wrote Python `unittest` suites that mock the Gemini client for offline testing.",
     ],
     technologies: [
@@ -217,10 +297,30 @@ export const VERIFIED_PROJECTS: VerifiedProject[] = [
   },
   {
     id: "penguin-ml",
+    index: "04",
     name: "Penguin Machine Learning",
-    tagline: "Exploratory data analysis, preprocessing, and species classification on the Palmer Penguins dataset",
+    tagline: "Exploring, cleaning and classifying the Palmer Penguins dataset in Jupyter notebooks",
     category: "Machine Learning",
-    accent: "#FF79C6",
+    accent: "#10B981",
+    previewImage: "/images/projects/penguin-preview.svg",
+    xrayTitle: "Notebook workflow and features",
+    xraySourcePath: "Penguin_EDA.ipynb · Penguin_Preprocessing.ipynb · Penguin_Machine_Learning.ipynb",
+    xrayCodeExcerpt: `# eda_penguins.py / Penguin_Machine_Learning.ipynb
+# Dataset: penguins_size.xlsx -> penguins_preprocessed.xlsx
+features = [
+    "culmen_length_mm", "culmen_depth_mm",
+    "flipper_length_mm", "body_mass_g",
+    "island", "sex"
+]
+target = "species"  # Adelie | Chinstrap | Gentoo
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X_encoded, y_encoded, test_size=0.2, random_state=42
+)
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+# Evaluated via accuracy_score, confusion_matrix, classification_report`,
     flow: [
       "Palmer Penguins Raw Dataset",
       "EDA & Missing-Value Cleaning",
@@ -228,9 +328,9 @@ export const VERIFIED_PROJECTS: VerifiedProject[] = [
       "Logistic Regression Evaluation",
     ],
     whatItDoes:
-      "A Python data-science repository containing Jupyter notebooks that walk through exploratory data analysis (EDA), data cleaning, feature encoding, and supervised classification of penguin species (`Adelie`, `Chinstrap`, `Gentoo`).",
+      "Three Jupyter notebooks that explore the Palmer Penguins dataset, clean and encode it, and train a model to predict penguin species (Adelie, Chinstrap or Gentoo).",
     whyBuilt:
-      "Built to practice the core steps of a tabular machine learning workflow—cleaning messy data, visualizing distributions, encoding categorical features, and evaluating a baseline classifier.",
+      "Built to practise the main steps of a tabular machine learning project: cleaning messy data, plotting distributions, encoding categories and evaluating a baseline classifier.",
     whatIImplemented: [
       "Created three separate notebooks (`Penguin_EDA.ipynb`, `Penguin_Preprocessing.ipynb`, `Penguin_Machine_Learning.ipynb`) and an EDA script (`eda_penguins.py`).",
       "Handled missing values and duplicates, and created univariate, bivariate, and multivariate plots including correlation heatmaps and pair plots.",
@@ -256,10 +356,24 @@ export const VERIFIED_PROJECTS: VerifiedProject[] = [
   },
   {
     id: "park-pulse",
+    index: "05",
     name: "Park Pulse (Slotify)",
-    tagline: "Smart parking web application with ESP32 / NodeMCU slot sensor prototype sketches",
+    tagline: "Smart parking web app with an ESP32 sensor prototype",
     category: "Full-Stack & IoT",
-    accent: "#8B35D5",
+    accent: "#F59E0B",
+    previewImage: "/images/projects/parkpulse-preview.svg",
+    xrayTitle: "Sensor sketch and availability endpoint",
+    xraySourcePath: "hardware/esp32_kct_slot_monitor/esp32_kct_slot_monitor.ino · src/server.js",
+    xrayCodeExcerpt: `// hardware/esp32_kct_slot_monitor/esp32_kct_slot_monitor.ino
+// Venue: KCT | Slot: KCT-A1 | Hardware ID: KCT-SENSOR-01
+// HC-SR04 Pins: TRIG -> GPIO 5, ECHO -> GPIO 18 (3.3V divider)
+const float BLOCKED_DISTANCE_CM = 100.0;
+
+// Distance rule:
+// distance <= 100.0 cm -> sensorBlocked = true  -> slot unavailable
+// distance >  100.0 cm -> sensorBlocked = false -> slot available
+// POST /api/slots/hardware/KCT-SENSOR-01/availability
+// Body: { "sensorBlocked": true }`,
     flow: [
       "ESP32 / NodeMCU Sensor Sketch",
       "HTTP Slot Availability Update",
@@ -267,9 +381,9 @@ export const VERIFIED_PROJECTS: VerifiedProject[] = [
       "React + Vite Booking Frontend",
     ],
     whatItDoes:
-      "A smart parking software and hardware prototype combining a Node.js + Express + MongoDB backend and a React + Vite frontend with Arduino sketches for updating a campus parking bay (`KCT-A1` / `KCT-SENSOR-01`) via ESP32 or NodeMCU.",
+      "A parking booking web app (Node.js, Express, MongoDB, React) paired with Arduino sketches that let an ESP32 or NodeMCU board report whether a campus parking bay (KCT-A1) is free.",
     whyBuilt:
-      "Built to learn how a physical ultrasonic (`HC-SR04`) or IR obstacle sensor wired to a microcontroller can update real slot availability in a web database and booking UI.",
+      "Built to learn how a physical distance sensor wired to a microcontroller can update real slot availability in a database and a booking interface.",
     whatIImplemented: [
       "Built an Express + Mongoose REST API supporting JWT login/registration, location and slot seeding (`seedSlots.js`, `seedLocations.js`), booking endpoints, and hardware availability routes (`POST/PATCH /api/slots/hardware/:hardwareId/availability`).",
       "Created a React + Vite + Tailwind CSS web frontend for viewing locations, checking slot availability, and creating bookings.",
@@ -299,10 +413,22 @@ export const VERIFIED_PROJECTS: VerifiedProject[] = [
   },
   {
     id: "jarvis-mini",
+    index: "06",
     name: "JARVIS Mini",
-    tagline: "Voice-and-text AI assistant web app with a Three.js 3D reactor and local command parser",
+    tagline: "Voice and text assistant web app with a 3D reactor and a local command parser",
     category: "AI Application",
-    accent: "#36D9E8",
+    accent: "#38BDF8",
+    previewImage: "/images/projects/jarvis-preview.svg",
+    xrayTitle: "Math evaluator and reactor states",
+    xraySourcePath: "src/utils/mathEval.ts · src/components/Reactor/ · server/services/geminiService.ts",
+    xrayCodeExcerpt: `// src/utils/mathEval.ts — Safe Recursive-Descent Expression Evaluator
+// Grammar:
+//   Expr   := Term (('+' | '-') Term)*
+//   Term   := Power (('*' | '/' | '%') Power)*
+//   Power  := Unary ('^' Power)?
+//   Unary  := ('+' | '-' | 'sqrt') Unary | Primary
+//   Primary:= NUMBER | '(' Expr ')'
+// Evaluates spoken & typed arithmetic locally in 0ms without eval()`,
     flow: [
       "Voice / Text Input",
       "Local Math & Command Parser",
@@ -310,13 +436,13 @@ export const VERIFIED_PROJECTS: VerifiedProject[] = [
       "Three.js 3D / 2D Reactor UI",
     ],
     whatItDoes:
-      "A Progressive Web App (PWA) personal assistant experiment featuring a 3D Three.js reactor visualization, browser speech recognition and synthesis, a local math/command parser, and server-side Gemini chat streaming.",
+      "A Progressive Web App assistant experiment with a 3D reactor visual, browser speech recognition and speech output, a local math and command parser, and streamed Gemini chat replies from a server.",
     whyBuilt:
-      "Built as a custom pocket AI assistant project to experiment with combining Web Speech APIs, 3D `@react-three/fiber` graphics, SQLite persistence, and streaming LLM responses.",
+      "Built to experiment with combining the Web Speech API, 3D graphics with react-three-fiber, SQLite storage and streaming LLM responses in one app.",
     whatIImplemented: [
-      "Built a React + TypeScript + Vite frontend with a Three.js / `@react-three/fiber` 3D reactor (`IDLE`, `LISTENING`, `THINKING`, `SPEAKING`, `ERROR` states) and a 2D SVG fallback for weaker GPUs.",
+      "Built a React 19 + TypeScript + Vite frontend with a Three.js / `@react-three/fiber` 3D reactor (`IDLE`, `LISTENING`, `THINKING`, `SPEAKING`, `ERROR` states) and a 2D SVG fallback for weaker GPUs.",
       "Implemented push-to-talk Web Speech API hooks and a recursive-descent mathematical evaluator (`mathEval.ts` without `eval`).",
-      "Built an Express + `better-sqlite3` backend with `@google/genai` (`gemini-2.5-flash`) Server-Sent Events streaming.",
+      "Built an Express 5 + `better-sqlite3` backend with `@google/genai` (`gemini-2.5-flash`) Server-Sent Events streaming.",
     ],
     technologies: [
       "TypeScript",
@@ -340,83 +466,178 @@ export const VERIFIED_PROJECTS: VerifiedProject[] = [
   },
 ];
 
+export interface HonestSkillItem {
+  name: string;
+  context: string;
+  relatedProjects: string[];
+}
+
 export interface HonestSkillCategory {
   id: string;
+  index: string;
   title: string;
   subtitle: string;
   accent: string;
-  items: { name: string; context: string }[];
+  items: HonestSkillItem[];
 }
 
 export const HONEST_SKILLS: HonestSkillCategory[] = [
   {
     id: "used",
-    title: "Used in Projects",
-    subtitle: "Technologies I have actively written and shipped code with in the repositories above",
-    accent: "#36D9E8",
+    index: "01",
+    title: "Used in my projects",
+    subtitle: "Technologies I have written code with in the projects above",
+    accent: "#FF5500",
     items: [
-      { name: "TypeScript & JavaScript", context: "ReproPack, AdaptEd, JARVIS Mini, Park Pulse" },
-      { name: "Python", context: "Root Cause AI (FastAPI) & Penguin ML notebooks" },
-      { name: "React, Next.js & Vite", context: "Web frontends across my projects" },
-      { name: "HTML, CSS & Tailwind CSS", context: "Responsive UI styling and layouts" },
-      { name: "Node.js & Express", context: "Park Pulse REST API & JARVIS Mini server" },
-      { name: "Google Gemini API & Zod", context: "Structured LLM outputs & schema validation" },
-      { name: "MongoDB (Mongoose) & SQLite", context: "Park Pulse & JARVIS Mini persistence" },
-      { name: "Chrome Extensions (Manifest V3)", context: "ReproPack service worker & session storage" },
-      { name: "Git & GitHub", context: "Version control and project documentation" },
+      {
+        name: "TypeScript & JavaScript",
+        context: "ReproPack, AdaptEd, JARVIS Mini, Park Pulse",
+        relatedProjects: ["repropack", "adapted", "jarvis-mini", "park-pulse", "rootcause-ai"],
+      },
+      {
+        name: "Python",
+        context: "Root Cause AI (FastAPI) & Penguin ML notebooks",
+        relatedProjects: ["rootcause-ai", "penguin-ml"],
+      },
+      {
+        name: "React, Next.js & Vite",
+        context: "Web frontends across my projects",
+        relatedProjects: ["repropack", "adapted", "rootcause-ai", "park-pulse", "jarvis-mini"],
+      },
+      {
+        name: "HTML, CSS & Tailwind CSS",
+        context: "Responsive UI styling and layouts",
+        relatedProjects: ["repropack", "adapted", "park-pulse", "jarvis-mini"],
+      },
+      {
+        name: "Node.js & Express",
+        context: "Park Pulse REST API & JARVIS Mini server",
+        relatedProjects: ["park-pulse", "jarvis-mini"],
+      },
+      {
+        name: "Google Gemini API & Zod",
+        context: "Structured LLM outputs & schema validation",
+        relatedProjects: ["adapted", "rootcause-ai", "jarvis-mini"],
+      },
+      {
+        name: "MongoDB (Mongoose) & SQLite",
+        context: "Park Pulse & JARVIS Mini persistence",
+        relatedProjects: ["park-pulse", "jarvis-mini"],
+      },
+      {
+        name: "Chrome Extensions (Manifest V3)",
+        context: "ReproPack service worker & session storage",
+        relatedProjects: ["repropack"],
+      },
+      {
+        name: "Git & GitHub",
+        context: "Version control and project documentation",
+        relatedProjects: ["repropack", "adapted", "penguin-ml", "park-pulse", "jarvis-mini"],
+      },
     ],
   },
   {
     id: "familiar",
-    title: "Familiar With",
-    subtitle: "Libraries and tools I have used in coursework, notebooks, or smaller features",
-    accent: "#E84CA8",
+    index: "02",
+    title: "Familiar with",
+    subtitle: "Used in coursework, notebooks or smaller features",
+    accent: "#38BDF8",
     items: [
-      { name: "C", context: "Undergraduate programming coursework & pointers" },
-      { name: "Pandas, NumPy, Matplotlib & Seaborn", context: "Exploratory data analysis in Penguin ML" },
-      { name: "Scikit-learn & Jupyter Notebook", context: "Data preprocessing & Logistic Regression" },
-      { name: "FastAPI & NetworkX", context: "Root Cause AI backend & dependency graphs" },
-      { name: "Three.js & @react-three/fiber", context: "3D reactor scene in JARVIS Mini" },
-      { name: "Vitest & Python unittest", context: "Unit tests in ReproPack & Root Cause AI" },
+      {
+        name: "C",
+        context: "Undergraduate programming coursework & pointers",
+        relatedProjects: [],
+      },
+      {
+        name: "Pandas, NumPy, Matplotlib & Seaborn",
+        context: "Exploratory data analysis in Penguin ML",
+        relatedProjects: ["penguin-ml", "rootcause-ai"],
+      },
+      {
+        name: "Scikit-learn & Jupyter Notebook",
+        context: "Data preprocessing & Logistic Regression",
+        relatedProjects: ["penguin-ml"],
+      },
+      {
+        name: "FastAPI & NetworkX",
+        context: "Root Cause AI backend & dependency graphs",
+        relatedProjects: ["rootcause-ai"],
+      },
+      {
+        name: "Three.js & @react-three/fiber",
+        context: "3D reactor scene in JARVIS Mini",
+        relatedProjects: ["jarvis-mini"],
+      },
+      {
+        name: "Vitest & Python unittest",
+        context: "Unit tests in ReproPack & Root Cause AI",
+        relatedProjects: ["repropack", "rootcause-ai"],
+      },
     ],
   },
   {
     id: "learning",
-    title: "Currently Learning",
-    subtitle: "Core computer science topics I am actively studying and practicing",
-    accent: "#FFAD57",
+    index: "03",
+    title: "Currently learning",
+    subtitle: "Computer science topics I am studying right now",
+    accent: "#10B981",
     items: [
       {
         name: "Data Structures & Algorithms",
         context: "Arrays, linked lists, stacks, queues, trees, recursion, sorting, and basic graph search (BFS, DFS, Dijkstra, A*)",
+        relatedProjects: ["rootcause-ai", "jarvis-mini"],
       },
       {
         name: "Backend Architecture & API Design",
         context: "Input validation, error handling, authentication, and database schema design",
+        relatedProjects: ["adapted", "rootcause-ai", "park-pulse"],
       },
       {
         name: "Machine Learning Fundamentals",
         context: "Feature engineering, model evaluation metrics, and classification workflows",
+        relatedProjects: ["penguin-ml"],
       },
     ],
   },
   {
     id: "explored",
-    title: "Explored Experimentally",
-    subtitle: "Hardware, robotics, and computer vision topics explored during my internship and prototypes",
-    accent: "#8B35D5",
+    index: "04",
+    title: "Explored",
+    subtitle: "Hardware and robotics topics from my internship and prototypes",
+    accent: "#F59E0B",
     items: [
-      { name: "Arduino, ESP32 & NodeMCU (ESP8266)", context: "KCT parking sensor sketches & serial debugging" },
-      { name: "HC-SR04 Ultrasonic & IR Sensors", context: "Distance threshold & obstacle detection" },
-      { name: "Raspberry Pi", context: "Linux edge compute & sensor interfacing exploration" },
-      { name: "ROS 2, SLAM & Autonomous Navigation Concepts", context: "Explored during Intellekt Genie internship" },
-      { name: "LiDAR, IMU, Encoders & OpenCV", context: "Sensor & computer-vision exploration during internship" },
+      {
+        name: "Arduino, ESP32 & NodeMCU (ESP8266)",
+        context: "KCT parking sensor sketches & serial debugging",
+        relatedProjects: ["park-pulse"],
+      },
+      {
+        name: "HC-SR04 Ultrasonic & IR Sensors",
+        context: "Distance threshold & obstacle detection",
+        relatedProjects: ["park-pulse"],
+      },
+      {
+        name: "Raspberry Pi",
+        context: "Linux edge compute & sensor interfacing exploration",
+        relatedProjects: [],
+      },
+      {
+        name: "ROS 2, SLAM & Autonomous Navigation Concepts",
+        context: "Explored during Intellekt Genie internship",
+        relatedProjects: [],
+      },
+      {
+        name: "LiDAR, IMU, Encoders & OpenCV",
+        context: "Sensor & computer-vision exploration during internship",
+        relatedProjects: [],
+      },
     ],
   },
 ];
 
 export interface TimelineEntry {
   id: string;
+  index: string;
   role: string;
   organization: string;
   period: string;
@@ -430,28 +651,30 @@ export interface TimelineEntry {
 export const TIMELINE: TimelineEntry[] = [
   {
     id: "kct-be-cs",
+    index: "01",
     role: "Bachelor of Engineering in Computer Science Engineering",
     organization: "Kumaraguru College of Technology, Coimbatore",
     period: "September 2025 – September 2029",
     type: "education",
-    accent: "#36D9E8",
+    accent: "#FF5500",
     summary:
-      "Undergraduate Computer Science Engineering student learning core computer science fundamentals while building independent software and AI projects.",
+      "Learning core computer science while building and documenting my own software and AI projects.",
     highlights: [
       "Coursework in programming (C, Python), discrete mathematics, and data structures",
-      "Applying classroom concepts by building and documenting open-source projects on GitHub",
+      "Applying what I learn in class by building and documenting projects on GitHub",
     ],
     tags: ["BE Computer Science Engineering", "2025–2029", "Coimbatore"],
   },
   {
     id: "intellekt-genie",
+    index: "02",
     role: "Intern",
     organization: "Intellekt Genie",
     period: "June 2026 – July 2026",
     type: "internship",
-    accent: "#E84CA8",
+    accent: "#38BDF8",
     summary:
-      "Short-term internship focused on learning and exploring Autonomous Mobile Robots (AMR) and how hardware sensors connect to robotics software.",
+      "A short internship learning about autonomous mobile robots and how hardware sensors connect to robotics software.",
     highlights: [
       "Explored Autonomous Mobile Robot (AMR) architecture and sensor fundamentals (LiDAR, ultrasonic sensors, IMU, and wheel encoders)",
       "Worked with embedded and single-board platforms including Arduino, ESP32, and Raspberry Pi",
@@ -470,13 +693,14 @@ export const TIMELINE: TimelineEntry[] = [
   },
   {
     id: "ecell-iitb",
+    index: "03",
     role: "Campus Ambassador",
     organization: "E-Cell, IIT Bombay",
     period: "June 2026 – November 2026",
     type: "leadership",
-    accent: "#FFAD57",
+    accent: "#F59E0B",
     summary:
-      "Campus outreach role sharing E-Cell IIT Bombay entrepreneurship initiatives, workshops, and competitions with fellow students.",
+      "Sharing E-Cell IIT Bombay's entrepreneurship programs, workshops and competitions with students on campus.",
     highlights: [
       "Coordinated campus awareness and student participation for entrepreneurship programs",
       "Connected interested student builders with startup resources and events",
@@ -485,13 +709,14 @@ export const TIMELINE: TimelineEntry[] = [
   },
   {
     id: "leed-kumaraguru",
+    index: "04",
     role: "Member",
     organization: "LEED Kumaraguru",
     period: "November 2025 – Present",
     type: "community",
-    accent: "#FF79C6",
+    accent: "#10B981",
     summary:
-      "Student member participating in campus entrepreneurship and product-building activities at Kumaraguru.",
+      "Student member taking part in entrepreneurship and product-building activities on campus.",
     highlights: [
       "Collaborating with fellow students on project ideas, prototypes, and campus innovation events",
     ],
@@ -499,13 +724,14 @@ export const TIMELINE: TimelineEntry[] = [
   },
   {
     id: "ksi",
+    index: "05",
     role: "Student",
     organization: "Kumaraguru School of Innovation",
     period: "September 2025 – Present",
     type: "community",
-    accent: "#8B35D5",
+    accent: "#38BDF8",
     summary:
-      "Participating in hands-on engineering learning, prototyping, and interdisciplinary student projects.",
+      "Hands-on engineering learning, prototyping and student projects.",
     highlights: [
       "Exploring practical problem-solving across software and hardware prototypes",
     ],
@@ -594,7 +820,7 @@ export const PERSONAS: Record<Persona, PersonaConfig> = {
   recruiter: {
     id: "recruiter",
     label: "Recruiter",
-    accent: "#36D9E8",
+    accent: "#FF5500",
     headline: PROFILE.positioning,
     bio: PROFILE.intro,
     chips: ["BE CSE @ KCT ('25–'29)", "TypeScript · Python", "React · Next.js"],
@@ -605,7 +831,7 @@ export const PERSONAS: Record<Persona, PersonaConfig> = {
   founder: {
     id: "founder",
     label: "Founder",
-    accent: "#E84CA8",
+    accent: "#38BDF8",
     headline: PROFILE.positioning,
     bio: PROFILE.intro,
     chips: [],
@@ -616,7 +842,7 @@ export const PERSONAS: Record<Persona, PersonaConfig> = {
   engineer: {
     id: "engineer",
     label: "Engineer",
-    accent: "#8B35D5",
+    accent: "#10B981",
     headline: PROFILE.positioning,
     bio: PROFILE.intro,
     chips: [],

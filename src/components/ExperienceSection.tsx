@@ -1,95 +1,113 @@
-import { motion } from "framer-motion";
-import { Award, Calendar, Cpu, GraduationCap, Users } from "lucide-react";
+import { motion, useScroll, useSpring } from "framer-motion";
+import { useRef } from "react";
 import { TIMELINE } from "../data/profile";
-import { SpotlightCard } from "./ui/SpotlightCard";
+import { EASE_OUT } from "../lib/motion";
+import { SectionHeader } from "./ui/SectionHeader";
+
+const TYPE_LABEL: Record<(typeof TIMELINE)[number]["type"], string> = {
+  education: "Education",
+  internship: "Internship",
+  leadership: "Campus role",
+  community: "Community",
+};
 
 export function ExperienceSection() {
+  const listRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: listRef, offset: ["start 75%", "end 55%"] });
+  const fill = useSpring(scrollYProgress, { stiffness: 90, damping: 28, mass: 0.6 });
+
   return (
     <section
       id="experience"
       aria-labelledby="experience-heading"
-      className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8"
+      className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-10"
     >
-      <div className="flex flex-col gap-2 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between">
-        <div>
-          <span className="synth-badge">04 / Experience</span>
-          <h2
-            id="experience-heading"
-            className="mt-3 font-display text-3xl font-bold tracking-tight text-[#F5F0FA] sm:text-4xl"
+      <SectionHeader
+        id="experience-heading"
+        index="04"
+        label="Experience"
+        title="Experience"
+        note="My degree, a short robotics internship, and the student communities I am part of."
+      />
+
+      <div ref={listRef} className="relative mt-12 border-b border-[#F2EFE9]/12">
+        {/* Spine: the orange line fills as you scroll down the list */}
+        <span aria-hidden="true" className="absolute top-0 bottom-0 left-[5px] w-px bg-[#F2EFE9]/12" />
+        <motion.span
+          aria-hidden="true"
+          style={{ scaleY: fill }}
+          className="absolute top-0 bottom-0 left-[5px] w-px origin-top bg-[#FF5500] shadow-[0_0_8px_#FF5500]"
+        />
+
+        {TIMELINE.map((item) => (
+          <motion.article
+            key={item.id}
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.7, ease: EASE_OUT }}
+            className="group relative grid gap-6 border-t border-[#F2EFE9]/12 py-8 pl-9 transition-colors hover:bg-[#0E0E12]/60 sm:py-10 lg:grid-cols-12 lg:gap-8"
           >
-            Experience &amp; Campus Involvement
-          </h2>
-        </div>
-        <p className="max-w-md text-xs leading-relaxed text-[#b6a8c9]">
-          Documented internships, campus organizations, and undergraduate education.
-        </p>
-      </div>
+            {/* Precision timeline node reticle */}
+            <motion.span
+              aria-hidden="true"
+              className="absolute top-9 left-0 size-[11px] border border-[#FF5500] sm:top-11"
+              initial={{ backgroundColor: "#08080A", scale: 0.85 }}
+              whileInView={{ backgroundColor: "#FF5500", scale: 1 }}
+              viewport={{ once: true, margin: "-35% 0px -35% 0px" }}
+              transition={{ duration: 0.4, ease: EASE_OUT }}
+            />
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute top-[41px] left-[11px] hidden h-px w-4 bg-[#FF5500]/50 sm:top-[49px] sm:block"
+            />
 
-      <div className="mt-8 grid gap-5 md:grid-cols-2">
-        {TIMELINE.map((item, idx) => {
-          const Icon =
-            item.type === "internship"
-              ? Cpu
-              : item.type === "leadership"
-                ? Award
-                : item.type === "education"
-                  ? GraduationCap
-                  : Users;
-          return (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.35, delay: idx * 0.04 }}
-              className={idx === 0 ? "md:col-span-2" : ""}
-            >
-              <SpotlightCard className="flex h-full flex-col justify-between p-6">
-                <div>
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span
-                      className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-0.5 font-mono text-xs"
-                      style={{
-                        borderColor: `${item.accent}55`,
-                        backgroundColor: `${item.accent}18`,
-                        color: item.accent,
-                      }}
-                    >
-                      <Icon className="size-3.5" />
-                      {item.organization}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 font-mono text-xs text-[#b6a8c9]">
-                      <Calendar className="size-3.5" /> {item.period}
-                    </span>
-                  </div>
+            <div className="lg:col-span-3">
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-sm font-bold tabular-nums text-[#FF5500]">{item.index}</span>
+                <span
+                  className="border border-[#F2EFE9]/15 bg-[#0E0E12] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em]"
+                  style={{ color: item.accent }}
+                >
+                  {TYPE_LABEL[item.type]}
+                </span>
+              </div>
+              <p className="mt-2 font-mono text-xs tabular-nums text-[#F2EFE9]">{item.period}</p>
+            </div>
 
-                  <h3 className="mt-3 font-display text-xl font-bold text-[#F5F0FA]">{item.role}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-[#b6a8c9]">{item.summary}</p>
+            <div className="lg:col-span-5">
+              <p className="font-mono text-xs font-semibold uppercase tracking-wider text-[#FF5500]">
+                {item.organization}
+              </p>
+              <h3 className="mt-1 font-display text-xl font-bold text-[#F2EFE9] transition-colors group-hover:text-white sm:text-2xl">
+                {item.role}
+              </h3>
+              <p className="mt-2.5 text-sm leading-relaxed text-[#A6A29A]">{item.summary}</p>
+            </div>
 
-                  <ul className="mt-4 space-y-1.5 text-xs leading-relaxed text-[#F5F0FA]/85">
-                    {item.highlights.map((h) => (
-                      <li key={h} className="flex items-start gap-2">
-                        <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[#E84CA8]" />
-                        <span>{h}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+            <div className="flex flex-col justify-between lg:col-span-4">
+              <ul className="space-y-2 text-xs leading-relaxed text-[#F2EFE9]/90">
+                {item.highlights.map((h) => (
+                  <li key={h} className="flex items-start gap-2.5">
+                    <span className="mt-1.5 size-1.5 shrink-0 bg-[#FF5500]" />
+                    <span>{h}</span>
+                  </li>
+                ))}
+              </ul>
 
-                <div className="mt-5 flex flex-wrap gap-1.5 border-t border-white/10 pt-4">
-                  {item.tags.map((t) => (
-                    <span
-                      key={t}
-                      className="rounded border border-white/10 bg-[#090611]/70 px-2.5 py-0.5 font-mono text-[11px] text-[#b6a8c9]"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </SpotlightCard>
-            </motion.div>
-          );
-        })}
+              <div className="mt-4 flex flex-wrap gap-1.5 pt-2">
+                {item.tags.map((t) => (
+                  <span
+                    key={t}
+                    className="border border-[#F2EFE9]/10 bg-[#0E0E12] px-2 py-0.5 font-mono text-[10px] text-[#A6A29A] transition-colors group-hover:border-[#F2EFE9]/20"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </motion.article>
+        ))}
       </div>
     </section>
   );

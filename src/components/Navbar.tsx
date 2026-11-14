@@ -6,12 +6,12 @@ import { useBus } from "../lib/bus";
 import { scrollToSection } from "../lib/utils";
 
 export const NAV_ITEMS = [
-  { id: "home", label: "Home" },
-  { id: "about", label: "About" },
-  { id: "projects", label: "Projects" },
-  { id: "skills", label: "Skills" },
-  { id: "experience", label: "Experience" },
-  { id: "contact", label: "Contact" },
+  { id: "home", index: "00", label: "Home" },
+  { id: "about", index: "01", label: "About" },
+  { id: "projects", index: "02", label: "Projects" },
+  { id: "skills", index: "03", label: "Skills" },
+  { id: "experience", index: "04", label: "Experience" },
+  { id: "contact", index: "05", label: "Contact" },
 ] as const;
 
 export type SectionId = (typeof NAV_ITEMS)[number]["id"];
@@ -33,7 +33,6 @@ export function Navbar() {
     }
   };
 
-  // Listen for programmatic navigation events from anywhere in the app
   useBus("nav:select", (targetId) => {
     if (!VALID_IDS.has(targetId)) return;
     programmaticTargetRef.current = targetId;
@@ -49,7 +48,6 @@ export function Navbar() {
       const docHeight = document.documentElement.scrollHeight;
       const winHeight = window.innerHeight;
 
-      // Respect short lock window during programmatic smooth scroll until target reached
       const now = performance.now();
       if (programmaticTargetRef.current && now < programmaticLockUntilRef.current) {
         const targetEl = document.getElementById(programmaticTargetRef.current);
@@ -69,7 +67,6 @@ export function Navbar() {
         programmaticTargetRef.current = null;
       }
 
-      // Deterministic active section resolution across arbitrary section heights
       if (scrollY <= 40) {
         updateActiveSection("home");
         return;
@@ -110,13 +107,11 @@ export function Navbar() {
       }
     };
 
-    // Release programmatic lock immediately if user manually scrolls with wheel/touch
     const releaseLockOnManualInput = () => {
       programmaticTargetRef.current = null;
       programmaticLockUntilRef.current = 0;
     };
 
-    // IntersectionObserver as secondary trigger when section boundaries cross the reading zone
     const observer = new IntersectionObserver(
       () => {
         onScrollOrResize();
@@ -129,7 +124,6 @@ export function Navbar() {
       if (el) observer.observe(el);
     });
 
-    // Handle initial hash & browser back/forward navigation
     const handleHashOrPopState = () => {
       const hashId = window.location.hash.replace(/^#/, "");
       if (hashId && VALID_IDS.has(hashId)) {
@@ -146,7 +140,6 @@ export function Navbar() {
     window.addEventListener("popstate", handleHashOrPopState);
     window.addEventListener("hashchange", handleHashOrPopState);
 
-    // Sync initial state on mount
     const initialHash = window.location.hash.replace(/^#/, "");
     if (initialHash && VALID_IDS.has(initialHash)) {
       window.setTimeout(() => scrollToSection(initialHash, { pushHistory: false }), 20);
@@ -171,43 +164,41 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#07050e]/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-[#F2EFE9]/[0.09] bg-[#08080A]/88 backdrop-blur-xl">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[#36D9E8] focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:font-bold focus:text-[#07050e]"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-[#FF5500] focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:font-bold focus:text-[#08080A]"
       >
         Skip to main content
       </a>
 
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
-        {/* Brand */}
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-10">
+        {/* Editorial Brand Identity */}
         <a
           href="#home"
           onClick={(e) => {
             e.preventDefault();
             handleNav("home");
           }}
-          className="group flex shrink-0 items-center gap-3"
+          className="group flex shrink-0 items-center gap-3.5"
           aria-label="Jashan Pratul — Home"
         >
-          <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-[#E84CA8]/40 bg-gradient-to-br from-[#280d3b] to-[#07050e] font-display text-xs font-bold text-[#F5F0FA] shadow-[0_0_16px_-4px_rgba(232,76,168,0.4)]">
-            JP
+          <span className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden border border-[#F2EFE9]/15 bg-[#0E0E12] font-display text-xs font-bold tracking-tight text-[#F2EFE9]">
+            <span className="absolute inset-y-0 left-0 w-1 bg-[#FF5500]" />
+            <span className="pl-1">JP</span>
           </span>
           <div className="flex flex-col whitespace-nowrap">
-            <span className="font-display text-sm font-semibold tracking-tight text-[#F5F0FA] transition-colors group-hover:text-[#FF79C6]">
+            <span className="font-display text-sm font-semibold tracking-tight text-[#F2EFE9] transition-colors group-hover:text-[#FF5500]">
               {PROFILE.name}
             </span>
-            <span className="hidden font-mono text-[11px] text-[#b6a8c9] sm:block">
-              BE CSE · KCT Coimbatore
+            <span className="hidden font-mono text-[10px] uppercase tracking-[0.14em] text-[#6E6B65] lg:block">
+              KCT Coimbatore · CSE &apos;29
             </span>
           </div>
         </a>
 
-        {/* Desktop Navigation — Minimal, Balanced Pill Capsule */}
-        <nav
-          aria-label="Primary navigation"
-          className="hidden items-center gap-1 rounded-full border border-white/[0.08] bg-[#110a1f]/75 p-1 md:flex"
-        >
+        {/* Desktop Navigation — Architectural Editorial Bar */}
+        <nav aria-label="Primary navigation" className="hidden items-center gap-0.5 md:flex lg:gap-1">
           {NAV_ITEMS.map((item) => {
             const isActive = activeSection === item.id;
             return (
@@ -219,28 +210,35 @@ export function Navbar() {
                   e.preventDefault();
                   handleNav(item.id);
                 }}
-                className={`relative rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                  isActive ? "text-[#F5F0FA]" : "text-[#b6a8c9] hover:text-[#F5F0FA]"
+                className={`relative flex items-baseline gap-1.5 whitespace-nowrap px-2.5 py-2 text-xs font-medium tracking-wide transition-colors lg:px-3.5 ${
+                  isActive ? "text-[#F2EFE9]" : "text-[#A6A29A] hover:text-[#F2EFE9]"
                 }`}
               >
+                <span
+                  className={`hidden font-mono text-[10px] tabular-nums transition-colors lg:inline ${
+                    isActive ? "text-[#FF5500]" : "text-[#6E6B65]"
+                  }`}
+                >
+                  {item.index}
+                </span>
+                <span className="font-display text-[13px]">{item.label}</span>
                 {isActive && (
                   <motion.span
-                    layoutId="nav-active-pill"
-                    className="absolute inset-0 -z-10 rounded-full border border-[#E84CA8]/45 bg-gradient-to-r from-[#8B35D5]/30 via-[#E84CA8]/20 to-[#36D9E8]/20"
-                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                    layoutId="editorial-nav-indicator"
+                    className="absolute inset-x-2.5 bottom-0 h-[2px] bg-[#FF5500] lg:inset-x-3"
+                    transition={{ type: "spring", stiffness: 440, damping: 36 }}
                   />
                 )}
-                {item.label}
               </a>
             );
           })}
         </nav>
 
-        {/* Mobile Menu Button (Hidden on Desktop so no empty space remains) */}
+        {/* Mobile Menu Trigger (Hidden on Desktop) */}
         <button
           type="button"
           onClick={() => setMobileOpen((v) => !v)}
-          className="inline-flex size-9 items-center justify-center rounded-lg border border-white/15 bg-[#120b20] text-[#F5F0FA] md:hidden"
+          className="inline-flex size-9 items-center justify-center border border-[#F2EFE9]/15 bg-[#0E0E12] text-[#F2EFE9] md:hidden"
           aria-expanded={mobileOpen}
           aria-label="Toggle navigation menu"
         >
@@ -248,16 +246,16 @@ export function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Navigation Menu */}
+      {/* Mobile Navigation Drawer */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden border-t border-white/10 bg-[#07050e]/95 backdrop-blur-2xl md:hidden"
+            className="overflow-hidden border-t border-[#F2EFE9]/10 bg-[#08080A]/98 backdrop-blur-2xl md:hidden"
           >
-            <div className="flex flex-col gap-1 px-4 py-4">
+            <div className="divide-y divide-[#F2EFE9]/[0.07] px-4 py-2">
               {NAV_ITEMS.map((item) => {
                 const isActive = activeSection === item.id;
                 return (
@@ -269,14 +267,17 @@ export function Navbar() {
                       e.preventDefault();
                       handleNav(item.id);
                     }}
-                    className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
-                      isActive
-                        ? "border border-[#E84CA8]/40 bg-[#301044]/50 text-[#F5F0FA]"
-                        : "text-[#b6a8c9] hover:bg-[#301044]/30 hover:text-[#F5F0FA]"
+                    className={`flex items-center justify-between py-3.5 text-sm font-medium transition-colors ${
+                      isActive ? "text-[#F2EFE9]" : "text-[#A6A29A] hover:text-[#F2EFE9]"
                     }`}
                   >
-                    <span>{item.label}</span>
-                    <span className="font-mono text-xs text-[#36D9E8]">{isActive ? "Active" : "→"}</span>
+                    <span className="flex items-baseline gap-3">
+                      <span className="font-mono text-xs tabular-nums text-[#FF5500]">{item.index}</span>
+                      <span className="font-display text-base">{item.label}</span>
+                    </span>
+                    <span className="font-mono text-[11px] uppercase tracking-widest text-[#FF5500]">
+                      {isActive ? "Active" : "→"}
+                    </span>
                   </a>
                 );
               })}

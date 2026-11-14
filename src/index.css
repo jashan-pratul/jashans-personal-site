@@ -1,36 +1,38 @@
 @import "tailwindcss";
 
 @theme {
-  /* Core Retro-Futurist Editorial Palette */
-  --color-bg: #07050e;
-  --color-violet: #280d3b;
-  --color-purple: #8b35d5;
-  --color-magenta: #e84ca8;
-  --color-pink: #ff79c6;
-  --color-cyan: #36d9e8;
-  --color-orange: #ffad57;
-  --color-ink: #f5f0fa;
+  /* Nocturnal Editorial Engineering Palette — Anchored to Jashan's Portrait */
+  --color-bg: #08080a;
+  --color-surface: #0e0e12;
+  --color-surface-2: #14141b;
+  --color-surface-3: #1b1b24;
 
-  /* Elevated Atmospheric Surfaces & Borders */
-  --color-surface: #110a1f;
-  --color-surface-2: #180f2c;
-  --color-surface-3: #22143d;
-  --color-line: rgba(245, 240, 250, 0.085);
-  --color-line-strong: rgba(232, 76, 168, 0.28);
-  --color-muted: #b6a8c9;
-  --color-faint: #7a6b90;
+  --color-ink: #f2efe9;
+  --color-muted: #a6a29a;
+  --color-faint: #6e6b65;
 
-  /* Semantic Accents */
-  --color-em: #36d9e8;
-  --color-ind: #8b35d5;
-  --color-amber: #ffad57;
-  --color-rose: #e84ca8;
+  --color-accent: #ff5500;
+  --color-orange: #ff5500;
+  --color-cyan: #38bdf8;
+  --color-emerald: #10b981;
+  --color-amber: #f59e0b;
 
-  /* Typography */
-  --font-display: "Space Grotesk", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Space Grotesk", "Inter Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: "Space Mono", "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-pixel: "Silkscreen", "Space Mono", ui-monospace, monospace;
+  /* Backward-compatible semantic variables */
+  --color-violet: #14141b;
+  --color-purple: #ff5500;
+  --color-magenta: #ff5500;
+  --color-pink: #ff7833;
+  --color-em: #38bdf8;
+  --color-ind: #ff5500;
+  --color-rose: #ff5500;
+
+  --color-line: rgba(242, 239, 233, 0.09);
+  --color-line-strong: rgba(255, 85, 0, 0.38);
+
+  /* Typography — Space Grotesk (display), Inter (body), JetBrains Mono (details). All self-hosted. */
+  --font-display: "Space Grotesk Variable", "Space Grotesk", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 @layer base {
@@ -42,6 +44,7 @@
     text-rendering: optimizeLegibility;
     scroll-behavior: smooth;
   }
+
   body {
     font-family: var(--font-sans);
     background-color: var(--color-bg);
@@ -49,115 +52,103 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
+
   ::selection {
-    background: rgba(232, 76, 168, 0.35);
-    color: #f5f0fa;
+    background: rgba(255, 85, 0, 0.32);
+    color: #f2efe9;
   }
+
   :focus-visible {
-    outline: 2px solid var(--color-cyan);
+    outline: 2px solid var(--color-accent);
     outline-offset: 3px;
-    border-radius: 6px;
+    border-radius: 4px;
   }
+
   [id] {
-    scroll-margin-top: 72px;
+    scroll-margin-top: 76px;
   }
+
   button {
     cursor: pointer;
   }
+
   button:disabled {
     cursor: not-allowed;
   }
 }
 
 @layer components {
-  /* High-performance cursor-tracked editorial card (no per-card backdrop-filter GPU stall) */
+  .editorial-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .editorial-kicker::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 2px;
+    background-color: var(--color-accent);
+  }
+
+  .editorial-panel {
+    position: relative;
+    background: rgba(14, 14, 18, 0.86);
+    border: 1px solid var(--color-line);
+    transition:
+      border-color 220ms ease,
+      background-color 220ms ease;
+  }
+
+  .editorial-panel:hover {
+    border-color: rgba(242, 239, 233, 0.18);
+  }
+
+  /* Preserved for legacy components in src/components/cards/* */
   .spotlight {
     position: relative;
     isolation: isolate;
-    background: linear-gradient(165deg, rgba(22, 13, 40, 0.92) 0%, rgba(10, 7, 19, 0.96) 100%);
-    box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
-      0 16px 40px -20px rgba(0, 0, 0, 0.7);
+    background: rgba(14, 14, 18, 0.9);
     border: 1px solid var(--color-line);
-    border-radius: 20px;
+    border-radius: 12px;
     --x: 50%;
     --y: 50%;
-    transition:
-      border-color 240ms ease,
-      transform 240ms ease;
-  }
-  .spotlight::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 280ms ease;
-    background: radial-gradient(
-      480px circle at var(--x) var(--y),
-      rgba(232, 76, 168, 0.12),
-      rgba(54, 217, 232, 0.04) 40%,
-      transparent 65%
-    );
-  }
-  .spotlight::after {
-    content: "";
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    padding: 1px;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 280ms ease;
-    background: radial-gradient(
-      340px circle at var(--x) var(--y),
-      rgba(255, 121, 198, 0.65),
-      rgba(54, 217, 232, 0.38) 45%,
-      transparent 70%
-    );
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-  }
-  .spotlight:hover::before,
-  .spotlight:hover::after {
-    opacity: 1;
+    transition: border-color 220ms ease;
   }
 
-  .chroma-title {
-    text-shadow:
-      -1px 0 rgba(232, 76, 168, 0.28),
-      1px 0 rgba(54, 217, 232, 0.28),
-      0 0 32px rgba(139, 53, 213, 0.28);
+  .spotlight:hover {
+    border-color: rgba(255, 85, 0, 0.35);
   }
 
   .synth-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     font-family: var(--font-mono);
     font-size: 11px;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    padding: 4px 11px;
-    border-radius: 999px;
-    border: 1px solid rgba(232, 76, 168, 0.32);
-    background: linear-gradient(90deg, rgba(139, 53, 213, 0.16), rgba(232, 76, 168, 0.1));
-    color: var(--color-pink);
+    color: var(--color-accent);
   }
 
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: rgba(232, 76, 168, 0.28) transparent;
+    scrollbar-color: rgba(255, 85, 0, 0.32) transparent;
   }
   .scrollbar-thin::-webkit-scrollbar {
     height: 6px;
     width: 6px;
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(232, 76, 168, 0.28);
+    background: rgba(255, 85, 0, 0.32);
     border-radius: 999px;
   }
 
@@ -166,14 +157,66 @@
     font-size: 11px;
     line-height: 1;
     padding: 3px 6px;
-    border-radius: 6px;
-    border: 1px solid var(--color-line-strong);
+    border-radius: 4px;
+    border: 1px solid var(--color-line);
     background: var(--color-surface-2);
     color: var(--color-muted);
   }
 }
 
+@keyframes scene-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.scene-fade-in {
+  animation: scene-fade-in 1.6s ease-out both;
+}
+
+/* Soft edge so 3D accents dissolve instead of ending at the canvas border. */
+.scene-mask {
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 14%, #000 86%, transparent),
+    linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 14%, #000 86%, transparent),
+    linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+  mask-composite: intersect;
+}
+
+@keyframes flow-pulse {
+  0% {
+    left: -12%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+.flow-pulse-dot {
+  animation: flow-pulse 4.2s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .scene-fade-in {
+    animation: none;
+  }
+  .flow-pulse {
+    display: none;
+  }
   html {
     scroll-behavior: auto;
   }

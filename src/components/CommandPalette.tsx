@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
-  Command,
   Compass,
   Copy,
   Download,
@@ -62,14 +61,13 @@ export function CommandPalette() {
 
   const allItems: PaletteItem[] = useMemo(
     () => [
-      // Navigation
       ...[
-        { id: "home", label: "Home — Overview", sub: "Introduction and quick links" },
-        { id: "about", label: "About — Background & Education", sub: "Kumaraguru College of Technology (2025 – 2029) & interests" },
-        { id: "projects", label: "Projects — Verified Software & Prototypes", sub: "ReproPack, AdaptEd, Root Cause AI, Penguin ML, Park Pulse, JARVIS Mini" },
-        { id: "skills", label: "Skills — Technical Stack", sub: "Used in Projects, Familiar With, Currently Learning, Explored Experimentally" },
-        { id: "experience", label: "Experience & Education", sub: "KCT, Intellekt Genie, E-Cell IIT Bombay, LEED, KSI" },
-        { id: "contact", label: "Contact & Social Profiles", sub: "Email, GitHub, LinkedIn, and X" },
+        { id: "home", label: "Home", sub: "Introduction and quick links" },
+        { id: "about", label: "About", sub: "Kumaraguru College of Technology (2025 – 2029) and what I work on" },
+        { id: "projects", label: "Projects", sub: "ReproPack, AdaptEd, Root Cause AI, Penguin ML, Park Pulse, JARVIS Mini" },
+        { id: "skills", label: "Skills", sub: "Used in my projects, Familiar with, Currently learning, Explored" },
+        { id: "experience", label: "Experience", sub: "KCT, Intellekt Genie, E-Cell IIT Bombay, LEED, KSI" },
+        { id: "contact", label: "Contact", sub: "Email, GitHub, LinkedIn, and X" },
       ].map((s) => ({
         id: `nav-${s.id}`,
         group: "Navigate" as const,
@@ -80,11 +78,10 @@ export function CommandPalette() {
         run: () => scrollToSection(s.id),
       })),
 
-      // Verified Projects
       ...VERIFIED_PROJECTS.map((p) => ({
         id: `prj-${p.id}`,
         group: "Projects" as const,
-        title: `${p.name} — ${p.category}`,
+        title: `${p.index} ${p.name} — ${p.category}`,
         subtitle: p.tagline,
         keywords: `${p.name} ${p.tagline} ${p.technologies.join(" ")}`,
         icon: FolderGit2,
@@ -94,7 +91,6 @@ export function CommandPalette() {
         },
       })),
 
-      // Actions
       {
         id: "act-copy-email",
         group: "Actions",
@@ -107,8 +103,8 @@ export function CommandPalette() {
       {
         id: "act-resume",
         group: "Actions",
-        title: "Download Plaintext Résumé (resume.txt)",
-        subtitle: "Save verified education, internship & project summary",
+        title: "Download Résumé (resume.txt)",
+        subtitle: "Plain-text summary of my education, internship and projects",
         keywords: "resume cv download txt",
         icon: Download,
         run: () => downloadText("Jashan_Pratul_Resume.txt", RESUME_TXT),
@@ -180,17 +176,17 @@ export function CommandPalette() {
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-label="Quick Navigation"
-            initial={{ opacity: 0, y: -14, scale: 0.96 }}
+            aria-label="Directory Search"
+            initial={{ opacity: 0, y: -14, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.96 }}
-            transition={{ duration: 0.18 }}
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            transition={{ duration: 0.16 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-2xl overflow-hidden rounded-2xl border border-white/15 bg-[#120b20]/95 shadow-2xl"
+            className="w-full max-w-2xl overflow-hidden border border-[#F2EFE9]/20 bg-[#0E0E12] shadow-2xl"
           >
             {/* Search Input Header */}
-            <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3.5">
-              <Search className="size-4 text-[#FF79C6]" />
+            <div className="flex items-center gap-3 border-b border-[#F2EFE9]/10 px-4 py-3.5">
+              <Search className="size-4 text-[#FF5500]" />
               <input
                 ref={inputRef}
                 value={query}
@@ -207,14 +203,14 @@ export function CommandPalette() {
                     runSelected(filtered[activeIndex]);
                   }
                 }}
-                placeholder="Jump to a section, inspect a project (ReproPack, AdaptEd, Root Cause AI...), or copy email..."
-                className="w-full bg-transparent text-xs text-[#F5F0FA] placeholder:text-[#7a6b90] focus:outline-none sm:text-sm"
+                placeholder="Search sections, projects (ReproPack, AdaptEd, Root Cause AI...), or actions..."
+                className="w-full bg-transparent text-xs text-[#F2EFE9] placeholder:text-[#6E6B65] focus:outline-none sm:text-sm"
               />
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="Close quick navigation"
-                className="rounded-md border border-white/10 bg-[#090611] p-1 text-[#b6a8c9] hover:text-[#F5F0FA]"
+                aria-label="Close directory search"
+                className="border border-[#F2EFE9]/12 bg-[#08080A] p-1 text-[#A6A29A] hover:text-[#F2EFE9]"
               >
                 <X className="size-4" />
               </button>
@@ -223,11 +219,11 @@ export function CommandPalette() {
             {/* Results List */}
             <div className="scrollbar-thin max-h-[380px] overflow-y-auto p-2">
               {filtered.length === 0 ? (
-                <div className="py-10 text-center text-xs text-[#b6a8c9]">
+                <div className="py-10 text-center text-xs text-[#A6A29A]">
                   No matching items for &ldquo;{query}&rdquo;.
                 </div>
               ) : (
-                <ul role="listbox" aria-label="Navigation suggestions" className="space-y-1">
+                <ul role="listbox" aria-label="Directory suggestions" className="space-y-1">
                   {filtered.map((item, idx) => {
                     const Icon = item.icon;
                     const active = idx === activeIndex;
@@ -237,33 +233,33 @@ export function CommandPalette() {
                           type="button"
                           onMouseEnter={() => setActiveIndex(idx)}
                           onClick={() => runSelected(item)}
-                          className={`flex w-full items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 text-left transition-colors ${
+                          className={`flex w-full items-center justify-between gap-3 px-3.5 py-2.5 text-left transition-colors ${
                             active
-                              ? "border border-[#E84CA8]/40 bg-[#301044]/75 text-[#F5F0FA]"
-                              : "border border-transparent text-[#b6a8c9] hover:bg-white/5"
+                              ? "border border-[#FF5500]/50 bg-[#181412] text-[#F2EFE9]"
+                              : "border border-transparent text-[#A6A29A] hover:bg-white/5"
                           }`}
                         >
                           <div className="flex min-w-0 items-center gap-3">
                             <span
-                              className={`grid size-8 shrink-0 place-items-center rounded-lg border ${
+                              className={`grid size-8 shrink-0 place-items-center border ${
                                 active
-                                  ? "border-[#36D9E8]/50 bg-[#36D9E8]/15 text-[#36D9E8]"
-                                  : "border-white/10 bg-[#090611] text-[#b6a8c9]"
+                                  ? "border-[#FF5500] bg-[#FF5500]/15 text-[#FF5500]"
+                                  : "border-[#F2EFE9]/10 bg-[#08080A] text-[#A6A29A]"
                               }`}
                             >
                               <Icon className="size-4" />
                             </span>
                             <div className="min-w-0">
-                              <p className="truncate font-display text-sm font-semibold text-[#F5F0FA]">{item.title}</p>
-                              <p className="truncate text-xs text-[#b6a8c9]">{item.subtitle}</p>
+                              <p className="truncate font-display text-sm font-semibold text-[#F2EFE9]">{item.title}</p>
+                              <p className="truncate text-xs text-[#A6A29A]">{item.subtitle}</p>
                             </div>
                           </div>
 
                           <div className="flex shrink-0 items-center gap-2">
-                            <span className="hidden rounded border border-white/10 bg-[#090611] px-2 py-0.5 font-mono text-[10px] text-[#FF79C6] sm:inline">
+                            <span className="hidden border border-[#F2EFE9]/10 bg-[#08080A] px-2 py-0.5 font-mono text-[10px] text-[#FF5500] sm:inline">
                               {item.group}
                             </span>
-                            <ArrowRight className={`size-3.5 ${active ? "text-[#36D9E8]" : "text-white/20"}`} />
+                            <ArrowRight className={`size-3.5 ${active ? "text-[#FF5500]" : "text-white/20"}`} />
                           </div>
                         </button>
                       </li>
@@ -271,18 +267,6 @@ export function CommandPalette() {
                   })}
                 </ul>
               )}
-            </div>
-
-            {/* Footer Hints */}
-            <div className="flex items-center justify-between border-t border-white/10 bg-[#090611]/90 px-4 py-2.5 font-mono text-[11px] text-[#b6a8c9]">
-              <span className="inline-flex items-center gap-1.5 text-[#36D9E8]">
-                <Command className="size-3.5" /> Quick Navigation
-              </span>
-              <div className="flex items-center gap-3">
-                <span>↑↓ Navigate</span>
-                <span>↵ Open</span>
-                <span>ESC Close</span>
-              </div>
             </div>
           </motion.div>
         </motion.div>

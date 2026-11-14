@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" fill="none">
+  <rect width="960" height="560" fill="#090A0D"/>
+  <rect x="44" y="34" width="872" height="492" rx="10" fill="#0E1016" stroke="#F2EFE9" stroke-opacity="0.14"/>
+  <rect x="44" y="34" width="872" height="48" rx="10" fill="#151821"/>
+  <line x1="44" y1="82" x2="916" y2="82" stroke="#F2EFE9" stroke-opacity="0.1"/>
+
+  <circle cx="72" cy="58" r="5" fill="#FF5500"/>
+  <text x="88" y="62" fill="#F2EFE9" font-family="monospace" font-size="13" font-weight="700">PARK PULSE (SLOTIFY) — KCT HARDWARE &amp; FULL-STACK API</text>
+  <text x="688" y="62" fill="#38BDF8" font-family="monospace" font-size="10">ESP32 / NodeMCU · Express · MongoDB</text>
+
+  <!-- Left: Hardware Node Diagram -->
+  <rect x="66" y="102" width="400" height="402" rx="6" fill="#090A0E" stroke="#F2EFE9" stroke-opacity="0.1"/>
+  <text x="86" y="128" fill="#FF5500" font-family="monospace" font-size="10" font-weight="700">HARDWARE NODE · KCT-SENSOR-01 (SLOT KCT-A1)</text>
+
+  <!-- Microcontroller & HC-SR04 Box -->
+  <rect x="86" y="148" width="360" height="118" rx="6" fill="#12151E" stroke="#FF5500" stroke-opacity="0.45"/>
+  <text x="102" y="170" fill="#F2EFE9" font-family="monospace" font-size="11" font-weight="700">esp32_kct_slot_monitor.ino / nodemcu</text>
+  <text x="102" y="192" fill="#A19E97" font-family="monospace" font-size="10">HC-SR04 Ultrasonic: TRIG → GPIO 5 | ECHO → GPIO 18</text>
+  <text x="102" y="212" fill="#38BDF8" font-family="monospace" font-size="10">const float BLOCKED_DISTANCE_CM = 100.0;</text>
+  <text x="102" y="232" fill="#10B981" font-family="monospace" font-size="10">distance &lt;= 100cm → sensorBlocked: true</text>
+  <text x="102" y="250" fill="#A19E97" font-family="monospace" font-size="10">distance &gt;  100cm → sensorBlocked: false</text>
+
+  <!-- Serial Monitor Output -->
+  <rect x="86" y="282" width="360" height="202" rx="6" fill="#060709" stroke="#F2EFE9" stroke-opacity="0.1"/>
+  <text x="102" y="304" fill="#6E6B65" font-family="monospace" font-size="9">SERIAL MONITOR @ 115200 BAUD</text>
+  <text x="102" y="326" fill="#F2EFE9" font-family="monospace" font-size="10">=== KCT Smart Parking Slot Monitor ===</text>
+  <text x="102" y="344" fill="#A19E97" font-family="monospace" font-size="10">Slot: KCT-A1 | ID: KCT-SENSOR-01</text>
+  <text x="102" y="366" fill="#38BDF8" font-family="monospace" font-size="10">[WIFI] Connected. IP: 192.168.1.42</text>
+  <text x="102" y="388" fill="#F59E0B" font-family="monospace" font-size="10">[SENSOR] distanceCm=42.9 sensorBlocked=true</text>
+  <text x="102" y="410" fill="#10B981" font-family="monospace" font-size="10">[HTTP] POST {"sensorBlocked":true} -&gt; 200</text>
+  <text x="102" y="438" fill="#6E6B65" font-family="monospace" font-size="9">Debounce: STATE_STABLE_MS prevents flicker</text>
+
+  <!-- Right: Express API + React Booking UI -->
+  <rect x="484" y="102" width="410" height="402" rx="6" fill="#090A0E" stroke="#F2EFE9" stroke-opacity="0.1"/>
+  <text x="504" y="128" fill="#38BDF8" font-family="monospace" font-size="10" font-weight="700">EXPRESS + MONGODB ATLAS REST CONTRACT</text>
+
+  <rect x="504" y="148" width="370" height="96" rx="6" fill="#12151E" stroke="#F2EFE9" stroke-opacity="0.08"/>
+  <text x="520" y="170" fill="#FF5500" font-family="monospace" font-size="10" font-weight="700">POST /api/slots/hardware/KCT-SENSOR-01/availability</text>
+  <text x="520" y="192" fill="#A19E97" font-family="monospace" font-size="10">Also accepts PATCH {"isAvailable": false}</text>
+  <text x="520" y="214" fill="#10B981" font-family="monospace" font-size="10">Updates MongoDB document (isHardwareLinked: true)</text>
+
+  <!-- Web Frontend Bay Map Preview -->
+  <text x="504" y="272" fill="#F2EFE9" font-family="monospace" font-size="10" font-weight="700">REACT + VITE FRONTEND · VENUE: KCT CAMPUS</text>
+  <rect x="504" y="288" width="176" height="92" rx="6" fill="#231210" stroke="#FF5500" stroke-width="1.5"/>
+  <text x="520" y="312" fill="#FF5500" font-family="monospace" font-size="11" font-weight="700">BAY KCT-A1 [LIVE]</text>
+  <text x="520" y="334" fill="#F2EFE9" font-family="monospace" font-size="10">HW: KCT-SENSOR-01</text>
+  <text x="520" y="356" fill="#FCA5A5" font-family="monospace" font-size="10" font-weight="700">STATUS: OCCUPIED</text>
+
+  <rect x="698" y="288" width="176" height="92" rx="6" fill="#0F1B18" stroke="#10B981" stroke-opacity="0.5"/>
+  <text x="714" y="312" fill="#10B981" font-family="monospace" font-size="11" font-weight="700">BAY KCT-A2</text>
+  <text x="714" y="334" fill="#A19E97" font-family="monospace" font-size="10">Seeded Software Slot</text>
+  <text x="714" y="356" fill="#10B981" font-family="monospace" font-size="10" font-weight="700">STATUS: AVAILABLE</text>
+
+  <rect x="504" y="398" width="370" height="86" rx="6" fill="#12151E" stroke="#F2EFE9" stroke-opacity="0.08"/>
+  <text x="520" y="422" fill="#F2EFE9" font-family="monospace" font-size="10" font-weight="700">Implemented Stack:</text>
+  <text x="520" y="442" fill="#A19E97" font-family="monospace" font-size="10">• JWT Auth + Mongoose Models + Seed Scripts</text>
+  <text x="520" y="462" fill="#A19E97" font-family="monospace" font-size="10">• Single-bay hardware prototype on KCT-A1</text>
+</svg>

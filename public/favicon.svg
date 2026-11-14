@@ -1,17 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <linearGradient id="synth" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#36D9E8"/>
-      <stop offset="50%" stop-color="#E84CA8"/>
-      <stop offset="100%" stop-color="#8B35D5"/>
-    </linearGradient>
-    <radialGradient id="core" cx="50%" cy="42%" r="50%">
-      <stop offset="0%" stop-color="#8B35D5" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="#090611" stop-opacity="1"/>
-    </radialGradient>
-  </defs>
-  <rect width="64" height="64" rx="14" fill="#090611"/>
-  <rect width="64" height="64" rx="14" fill="url(#core)"/>
-  <rect x="2" y="2" width="60" height="60" rx="12" fill="none" stroke="url(#synth)" stroke-width="2.5"/>
-  <text x="32" y="40" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="700" fill="#F5F0FA">JP</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="10" fill="#08080A"/>
+  <rect x="2" y="2" width="60" height="60" rx="8" stroke="#F2EFE9" stroke-opacity="0.16" stroke-width="1"/>
+  <rect x="8" y="8" width="14" height="48" fill="#FF5500"/>
+  <path d="M51 12H55M53 10V14" stroke="#F2EFE9" stroke-opacity="0.6" stroke-width="1.2"/>
+  <text x="36" y="42" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="25" letter-spacing="-1" fill="#F2EFE9">JP</text>
 </svg>

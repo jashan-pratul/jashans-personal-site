@@ -1,41 +1,223 @@
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  AlertCircle,
-  ArrowUpRight,
-  CheckCircle2,
-  Code2,
-  ExternalLink,
-  Eye,
-  Lock,
-  Wrench,
-  X,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { AlertCircle, ArrowUpRight, CheckCircle2, ExternalLink, Lock, Wrench } from "lucide-react";
+import { useRef, useState } from "react";
 import { VERIFIED_PROJECTS, type VerifiedProject } from "../data/profile";
 import { useBus } from "../lib/bus";
+import { EASE_OUT, REVEAL_VIEWPORT } from "../lib/motion";
 import { ProjectInteractiveDemo } from "./ProjectInteractiveDemo";
 import { GitHubIcon } from "./ui/BrandIcons";
-import { SpotlightCard } from "./ui/SpotlightCard";
+import { Reveal } from "./ui/Motion";
+import { RichText } from "./ui/RichText";
+import { SectionHeader } from "./ui/SectionHeader";
 
 const CATEGORIES = ["All", "Developer Tool", "AI Application", "Machine Learning", "Full-Stack & IoT"] as const;
 
+function ProjectArticle({ project, highlighted }: { project: VerifiedProject; highlighted: boolean }) {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const numeralY = useTransform(scrollYProgress, [0, 1], [65, -85]);
+
+  return (
+    <motion.article
+      ref={ref}
+      id={`project-${project.id}`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.35 }}
+      className={`relative py-12 transition-colors duration-500 sm:py-16 ${
+        highlighted ? "bg-[#FF5500]/[0.03]" : ""
+      }`}
+    >
+      <motion.span
+        aria-hidden="true"
+        style={{ y: numeralY, WebkitTextStroke: "1px rgba(242,239,233,0.065)" }}
+        className="pointer-events-none absolute top-6 right-0 hidden font-display text-[11rem] leading-none font-bold text-transparent select-none lg:block"
+      >
+        {project.index}
+      </motion.span>
+
+      {/* Case Study Masthead */}
+      <Reveal className="relative flex flex-col justify-between gap-4 border-b border-[#F2EFE9]/10 pb-6 lg:flex-row lg:items-end">
+        <div className="flex items-start gap-4 sm:gap-6">
+          <span className="font-display text-4xl leading-none font-bold tabular-nums text-[#FF5500] sm:text-5xl">
+            {project.index}
+          </span>
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="border border-[#F2EFE9]/15 bg-[#0E0E12] px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[#A6A29A]">
+                {project.category}
+              </span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#6E6B65]">
+                Case Study {project.index} / 06
+              </span>
+            </div>
+            <h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#F2EFE9] sm:text-4xl">
+              {project.name}
+            </h3>
+            <p className="mt-1 max-w-2xl text-sm font-medium text-[#A6A29A] sm:text-base">{project.tagline}</p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          {project.chromeWebStoreUrl && (
+            <a
+              href={project.chromeWebStoreUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 border border-[#38BDF8]/45 bg-[#38BDF8]/10 px-3.5 py-2 font-mono text-xs font-semibold text-[#38BDF8] transition-colors hover:bg-[#38BDF8]/20"
+            >
+              <span>Chrome Web Store</span>
+              <ExternalLink className="size-3.5" />
+            </a>
+          )}
+
+          {project.liveUrl && (
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 bg-[#FF5500] px-4 py-2 font-mono text-xs font-bold text-[#08080A] transition-colors hover:bg-[#FF6B22]"
+            >
+              <span>Live site</span>
+              <ArrowUpRight className="size-3.5" />
+            </a>
+          )}
+
+          {project.githubUrl ? (
+            <a
+              href={project.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 border border-[#F2EFE9]/20 bg-[#0E0E12] px-4 py-2 font-mono text-xs font-medium text-[#F2EFE9] transition-colors hover:border-[#FF5500]"
+            >
+              <GitHubIcon size={14} />
+              <span>GitHub</span>
+              <ArrowUpRight className="size-3.5 text-[#A6A29A]" />
+            </a>
+          ) : (
+            <span
+              className="inline-flex items-center gap-1.5 border border-[#F2EFE9]/12 bg-[#0E0E12] px-3.5 py-2 font-mono text-xs text-[#A6A29A]"
+              title="The source code is in a private repository"
+            >
+              <Lock className="size-3.5 text-[#F59E0B]" />
+              <span>{project.repoNote ?? "Private repository"}</span>
+            </span>
+          )}
+        </div>
+      </Reveal>
+
+      {/* Case Study Body */}
+      <div className="relative mt-8 grid items-start gap-8 lg:grid-cols-12 lg:gap-10">
+        <div className="lg:col-span-7">
+          <ProjectInteractiveDemo project={project} />
+
+          <div className="mt-4 flex flex-wrap items-center gap-1.5">
+            <span className="mr-2 font-mono text-[10px] uppercase tracking-widest text-[#6E6B65]">Built with</span>
+            {project.technologies.map((tech) => (
+              <span
+                key={tech}
+                className="border border-[#F2EFE9]/12 bg-[#0E0E12] px-2.5 py-1 font-mono text-[11px] text-[#F2EFE9]/90 transition-colors hover:border-[#FF5500]/50"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-5 lg:col-span-5">
+          <Reveal className="grid gap-4 border border-[#F2EFE9]/12 bg-[#0E0E12]/75 p-5">
+            <div>
+              <h4 className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#FF5500]">
+                What it does
+              </h4>
+              <p className="mt-1.5 text-sm leading-relaxed text-[#F2EFE9]/95">{project.whatItDoes}</p>
+            </div>
+
+            <div className="border-t border-[#F2EFE9]/10 pt-4">
+              <h4 className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#38BDF8]">
+                Why I built this
+              </h4>
+              <p className="mt-1.5 text-sm leading-relaxed text-[#A6A29A]">{project.whyBuilt}</p>
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.05} className="border border-[#F2EFE9]/12 bg-[#0E0E12]/75 p-5">
+            <h4 className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#F2EFE9]">
+              <Wrench className="size-3.5 text-[#FF5500]" />
+              <span>My contribution</span>
+            </h4>
+            <ul className="mt-3 space-y-2 text-xs leading-relaxed text-[#A6A29A] sm:text-[13px]">
+              {project.whatIImplemented.map((item) => (
+                <li key={item} className="flex items-start gap-2.5">
+                  <span className="mt-1.5 size-1.5 shrink-0 bg-[#FF5500]" />
+                  <span>
+                    <RichText text={item} />
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+
+          <Reveal delay={0.08} className="grid gap-4 sm:grid-cols-2">
+            <div className="border border-[#10B981]/25 bg-[#0B1210]/75 p-4">
+              <h4 className="flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#10B981]">
+                <CheckCircle2 className="size-3.5" />
+                <span>What works</span>
+              </h4>
+              <ul className="mt-2.5 space-y-2 text-xs leading-relaxed text-[#F2EFE9]/90">
+                {project.whatCurrentlyWorks.map((w) => (
+                  <li key={w} className="flex items-start gap-2">
+                    <span className="mt-1.5 size-1 shrink-0 bg-[#10B981]" />
+                    <span>
+                      <RichText text={w} />
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="border border-[#F59E0B]/25 bg-[#14100B]/75 p-4">
+              <h4 className="flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#F59E0B]">
+                <AlertCircle className="size-3.5" />
+                <span>Limitations</span>
+              </h4>
+              <ul className="mt-2.5 space-y-2 text-xs leading-relaxed text-[#A6A29A]">
+                {project.knownLimitations.map((lim) => (
+                  <li key={lim} className="flex items-start gap-2">
+                    <span className="mt-1.5 size-1 shrink-0 bg-[#F59E0B]" />
+                    <span>
+                      <RichText text={lim} />
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
 export function ProjectsSection() {
   const [selectedCategory, setSelectedCategory] = useState<(typeof CATEGORIES)[number]>("All");
-  const [activeProject, setActiveProject] = useState<VerifiedProject | null>(null);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+
+  const jumpToCaseStudy = (id: string) => {
+    setSelectedCategory("All");
+    setHighlightedId(id);
+    window.setTimeout(() => {
+      const el = document.getElementById(`project-${id}`);
+      if (el) {
+        const top = Math.max(0, el.getBoundingClientRect().top + window.scrollY - 84);
+        window.scrollTo({ top, behavior: "smooth" });
+      }
+    }, 40);
+  };
 
   useBus("project:open", (id) => {
-    const found = VERIFIED_PROJECTS.find((p) => p.id === id);
-    if (found) setActiveProject(found);
+    jumpToCaseStudy(id);
   });
-
-  useEffect(() => {
-    if (!activeProject) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setActiveProject(null);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [activeProject]);
 
   const filtered =
     selectedCategory === "All"
@@ -46,374 +228,73 @@ export function ProjectsSection() {
     <section
       id="projects"
       aria-labelledby="projects-heading"
-      className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8"
+      className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-10"
     >
-      {/* Section Header & Filter */}
-      <div className="flex flex-col gap-4 border-b border-white/10 pb-6 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <span className="synth-badge">02 / Projects</span>
-          <h2
-            id="projects-heading"
-            className="mt-3 font-display text-3xl font-bold tracking-tight text-[#F5F0FA] sm:text-4xl"
-          >
-            Selected Work &amp; Interactive Demonstrations
-          </h2>
-          <p className="mt-2 max-w-2xl text-sm text-[#b6a8c9]">
-            Each project below includes an interactive simulation of its actual core logic alongside what it does, what
-            I implemented, what currently works, and its known limitations.
-          </p>
-        </div>
-
-        <div role="tablist" aria-label="Filter projects by category" className="flex flex-wrap gap-1.5">
-          {CATEGORIES.map((cat) => {
-            const active = selectedCategory === cat;
-            return (
-              <button
-                key={cat}
-                role="tab"
-                aria-selected={active}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`rounded-full border px-3.5 py-1.5 font-mono text-xs transition-colors ${
-                  active
-                    ? "border-[#E84CA8] bg-[#E84CA8]/20 text-[#F5F0FA]"
-                    : "border-white/10 bg-[#120b20]/70 text-[#b6a8c9] hover:border-white/25 hover:text-[#F5F0FA]"
-                }`}
-              >
-                {cat}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Project Cards */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        {filtered.map((project, idx) => (
-          <motion.article
-            key={project.id}
-            layout
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
-            transition={{ duration: 0.35, delay: idx * 0.04 }}
-          >
-            <SpotlightCard className="flex h-full flex-col justify-between p-6">
-              <div>
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-baseline gap-2.5">
-                    <span className="font-mono text-xs font-semibold text-[#36D9E8]">
-                      {String(idx + 1).padStart(2, "0")}
-                    </span>
-                    <h3 className="font-display text-2xl font-bold text-[#F5F0FA]">{project.name}</h3>
-                  </div>
-                  <span
-                    className="rounded-md border px-2.5 py-0.5 font-mono text-[11px]"
-                    style={{
-                      borderColor: `${project.accent}55`,
-                      backgroundColor: `${project.accent}18`,
-                      color: project.accent,
-                    }}
+      <SectionHeader
+        id="projects-heading"
+        index="02"
+        label="Projects"
+        title="My Projects"
+        aside={
+          <div className="flex flex-col gap-4 lg:items-end">
+            <p className="max-w-md text-sm leading-relaxed text-[#A6A29A] lg:text-right">
+              Six things I have built, from a Chrome extension to a sensor prototype. Each one has an overview and a
+              technical details tab with a small working version of its logic.
+            </p>
+            <div role="tablist" aria-label="Filter projects by category" className="flex flex-wrap gap-1.5 lg:justify-end">
+              {CATEGORIES.map((cat) => {
+                const active = selectedCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    role="tab"
+                    aria-selected={active}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`border px-3.5 py-2 font-mono text-xs transition-colors ${
+                      active
+                        ? "border-[#FF5500] bg-[#FF5500] font-bold text-[#08080A]"
+                        : "border-[#F2EFE9]/12 bg-[#0E0E12] text-[#A6A29A] hover:border-[#F2EFE9]/30 hover:text-[#F2EFE9]"
+                    }`}
                   >
-                    {project.category}
-                  </span>
-                </div>
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        }
+      />
 
-                <p className="mt-1 mb-4 text-xs font-medium text-[#FF79C6]">{project.tagline}</p>
-
-                <ProjectInteractiveDemo project={project} />
-
-                {/* What it does & Why it was built */}
-                <div className="mt-4 space-y-2.5 text-sm leading-relaxed text-[#b6a8c9]">
-                  <p>
-                    <strong className="font-mono text-xs uppercase text-[#F5F0FA]">What it does: </strong>
-                    {project.whatItDoes}
-                  </p>
-                  <p>
-                    <strong className="font-mono text-xs uppercase text-[#F5F0FA]">Why it was built: </strong>
-                    {project.whyBuilt}
-                  </p>
-                </div>
-
-                {/* What currently works vs Known limitations summary */}
-                <div className="mt-4 grid gap-3 rounded-xl border border-white/10 bg-[#090611]/65 p-4 sm:grid-cols-2">
-                  <div>
-                    <p className="flex items-center gap-1.5 font-mono text-[11px] font-semibold text-[#36D9E8]">
-                      <CheckCircle2 className="size-3.5" /> What Currently Works
-                    </p>
-                    <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-[#F5F0FA]/85">
-                      {project.whatCurrentlyWorks.map((w) => (
-                        <li key={w} className="flex items-start gap-1.5">
-                          <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#36D9E8]" />
-                          <span>{w}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div>
-                    <p className="flex items-center gap-1.5 font-mono text-[11px] font-semibold text-[#FFAD57]">
-                      <AlertCircle className="size-3.5" /> Known Limitations
-                    </p>
-                    <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-[#b6a8c9]">
-                      {project.knownLimitations.map((lim) => (
-                        <li key={lim} className="flex items-start gap-1.5">
-                          <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#FFAD57]" />
-                          <span>{lim}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Technologies */}
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  {project.technologies.map((tech) => (
-                    <span
-                      key={tech}
-                      className="rounded-md border border-white/10 bg-[#120b20] px-2.5 py-1 font-mono text-[11px] text-[#F5F0FA]/90"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Action Links */}
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setActiveProject(project)}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#E84CA8]/45 bg-[#E84CA8]/15 px-3.5 py-2 font-mono text-xs font-semibold text-[#FF79C6] transition-colors hover:bg-[#E84CA8]/25"
-                >
-                  <Eye className="size-3.5" />
-                  <span>Implementation Details</span>
-                </button>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  {project.chromeWebStoreUrl && (
-                    <a
-                      href={project.chromeWebStoreUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#36D9E8]/45 bg-[#36D9E8]/15 px-3 py-2 font-mono text-xs font-medium text-[#36D9E8] transition-colors hover:bg-[#36D9E8]/25"
-                    >
-                      <span>Chrome Web Store</span>
-                      <ExternalLink className="size-3.5" />
-                    </a>
-                  )}
-
-                  {project.liveUrl && (
-                    <a
-                      href={project.liveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#FFAD57]/45 bg-[#FFAD57]/15 px-3 py-2 font-mono text-xs font-medium text-[#FFAD57] transition-colors hover:bg-[#FFAD57]/25"
-                    >
-                      <span>Live Demo</span>
-                      <ArrowUpRight className="size-3.5" />
-                    </a>
-                  )}
-
-                  {project.githubUrl ? (
-                    <a
-                      href={project.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-[#120b20] px-3 py-2 font-mono text-xs text-[#F5F0FA] transition-colors hover:border-[#36D9E8]"
-                    >
-                      <GitHubIcon size={14} />
-                      <span>GitHub</span>
-                      <ArrowUpRight className="size-3.5" />
-                    </a>
-                  ) : (
-                    <span
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#090611]/80 px-3 py-2 font-mono text-xs text-[#b6a8c9]"
-                      title="Source code is in a private repository"
-                    >
-                      <Lock className="size-3.5 text-[#FFAD57]" />
-                      <span>{project.repoNote ?? "Private Repo"}</span>
-                    </span>
-                  )}
-                </div>
-              </div>
-            </SpotlightCard>
-          </motion.article>
+      {/* Quick Case Study Directory Strip */}
+      <div className="mt-8 flex flex-wrap items-center gap-2 border border-[#F2EFE9]/10 bg-[#0E0E12]/70 px-4 py-2.5">
+        <span className="mr-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[#FF5500]">
+          Case Studies:
+        </span>
+        {VERIFIED_PROJECTS.map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            onClick={() => jumpToCaseStudy(p.id)}
+            className="inline-flex items-center gap-1.5 border border-[#F2EFE9]/10 bg-[#08080A] px-2.5 py-1 font-mono text-[11px] text-[#A6A29A] transition-colors hover:border-[#FF5500] hover:text-[#F2EFE9]"
+          >
+            <span className="font-bold text-[#FF5500]">{p.index}</span>
+            <span>{p.name}</span>
+          </button>
         ))}
       </div>
 
-      {/* Full Implementation Breakdown Modal */}
-      <AnimatePresence>
-        {activeProject && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md"
-            onClick={() => setActiveProject(null)}
-          >
-            <motion.div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="project-modal-title"
-              initial={{ opacity: 0, y: 18, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.97 }}
-              onClick={(e) => e.stopPropagation()}
-              className="scrollbar-thin max-h-[88vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-[#E84CA8]/45 bg-[#120b20] p-6 shadow-2xl sm:p-8"
-            >
-              <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
-                <div>
-                  <span className="font-mono text-xs" style={{ color: activeProject.accent }}>
-                    {activeProject.category}
-                  </span>
-                  <h3 id="project-modal-title" className="mt-1 font-display text-2xl font-bold text-[#F5F0FA] sm:text-3xl">
-                    {activeProject.name}
-                  </h3>
-                  <p className="mt-1 text-xs text-[#FF79C6]">{activeProject.tagline}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveProject(null)}
-                  aria-label="Close project details"
-                  className="grid size-9 shrink-0 place-items-center rounded-lg border border-white/15 bg-[#090611] text-[#b6a8c9] hover:text-[#F5F0FA]"
-                >
-                  <X className="size-4" />
-                </button>
-              </div>
-
-              <div className="mt-5 space-y-5 text-sm leading-relaxed text-[#b6a8c9]">
-                <ProjectInteractiveDemo project={activeProject} />
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-xl border border-white/10 bg-[#090611]/70 p-4">
-                    <h4 className="font-mono text-xs font-bold uppercase text-[#F5F0FA]">What It Does</h4>
-                    <p className="mt-2 text-xs leading-relaxed text-[#b6a8c9]">{activeProject.whatItDoes}</p>
-                  </div>
-                  <div className="rounded-xl border border-white/10 bg-[#090611]/70 p-4">
-                    <h4 className="font-mono text-xs font-bold uppercase text-[#F5F0FA]">Why It Was Built</h4>
-                    <p className="mt-2 text-xs leading-relaxed text-[#b6a8c9]">{activeProject.whyBuilt}</p>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-white/10 bg-[#090611]/70 p-4">
-                  <h4 className="flex items-center gap-2 font-mono text-xs font-bold uppercase text-[#FF79C6]">
-                    <Wrench className="size-4" /> What I Actually Implemented
-                  </h4>
-                  <ul className="mt-3 space-y-2 text-xs leading-relaxed text-[#F5F0FA]/90">
-                    {activeProject.whatIImplemented.map((item) => (
-                      <li key={item} className="flex items-start gap-2">
-                        <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[#FF79C6]" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-xl border border-white/10 bg-[#090611]/70 p-4">
-                    <h4 className="flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-[#36D9E8]">
-                      <CheckCircle2 className="size-4" /> What Currently Works
-                    </h4>
-                    <ul className="mt-2.5 space-y-2 text-xs leading-relaxed text-[#F5F0FA]/90">
-                      {activeProject.whatCurrentlyWorks.map((item) => (
-                        <li key={item} className="flex items-start gap-2">
-                          <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[#36D9E8]" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="rounded-xl border border-white/10 bg-[#090611]/70 p-4">
-                    <h4 className="flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-[#FFAD57]">
-                      <AlertCircle className="size-4" /> Known Limitations
-                    </h4>
-                    <ul className="mt-2.5 space-y-2 text-xs leading-relaxed text-[#b6a8c9]">
-                      {activeProject.knownLimitations.map((item) => (
-                        <li key={item} className="flex items-start gap-2">
-                          <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[#FFAD57]" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-[#b6a8c9]">
-                    <Code2 className="size-3.5 text-[#36D9E8]" /> Technologies Actually Used
-                  </h4>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {activeProject.technologies.map((t) => (
-                      <span
-                        key={t}
-                        className="rounded-md border border-white/10 bg-[#090611] px-2.5 py-1 font-mono text-xs text-[#F5F0FA]"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5">
-                <div className="flex flex-wrap items-center gap-2">
-                  {activeProject.githubUrl ? (
-                    <a
-                      href={activeProject.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-[#090611] px-4 py-2.5 font-mono text-xs font-semibold text-[#F5F0FA] hover:border-[#36D9E8]"
-                    >
-                      <GitHubIcon size={15} />
-                      <span>View Source on GitHub</span>
-                      <ArrowUpRight className="size-4" />
-                    </a>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#090611] px-4 py-2.5 font-mono text-xs text-[#b6a8c9]">
-                      <Lock className="size-3.5 text-[#FFAD57]" />
-                      <span>Private Repository</span>
-                    </span>
-                  )}
-
-                  {activeProject.liveUrl && (
-                    <a
-                      href={activeProject.liveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#8B35D5] to-[#E84CA8] px-4 py-2.5 font-mono text-xs font-bold text-[#F5F0FA]"
-                    >
-                      <span>Open Live Deployment</span>
-                      <ArrowUpRight className="size-4" />
-                    </a>
-                  )}
-
-                  {activeProject.chromeWebStoreUrl && (
-                    <a
-                      href={activeProject.chromeWebStoreUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl border border-[#36D9E8]/50 bg-[#36D9E8]/15 px-4 py-2.5 font-mono text-xs font-semibold text-[#36D9E8]"
-                    >
-                      <span>Chrome Web Store</span>
-                      <ExternalLink className="size-3.5" />
-                    </a>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveProject(null)}
-                  className="rounded-xl border border-white/15 px-4 py-2.5 font-mono text-xs text-[#b6a8c9] hover:text-[#F5F0FA]"
-                >
-                  Close
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={REVEAL_VIEWPORT}
+        transition={{ duration: 0.8, ease: EASE_OUT }}
+        className="mt-10 divide-y divide-[#F2EFE9]/12 border-t border-b border-[#F2EFE9]/12"
+      >
+        {filtered.map((project) => (
+          <ProjectArticle key={project.id} project={project} highlighted={highlightedId === project.id} />
+        ))}
+      </motion.div>
     </section>
   );
 }
